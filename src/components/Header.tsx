@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from '../anim/useScrollReveal';
 import { IconPhone } from './Icons';
 
@@ -15,17 +15,44 @@ type Props = { onCtaClick: () => void };
 
 export default function Header({ onCtaClick }: Props) {
   const ref = useRef<HTMLElement>(null);
+  const lastY = useRef(0);
+  const [hidden, setHidden] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const ctx = gsap.context(() => {
-      gsap.from('.site .logo, .site .nav a, .site .header-r > *', {
-        y: -16, opacity: 0, duration: 0.7, ease: 'power3.out', stagger: 0.06, delay: 0.05,
+      // Селектори без префіксу .site — scope обмежено самим header'ом
+      gsap.from('.logo, .nav a, .header-r > *', {
+        y: -16, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.05, delay: 0.05,
       });
     }, ref);
     return () => ctx.revert();
   }, []);
+
+  // Sticky + hide-on-scroll-down
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 30);
+      if (y > 200 && y > lastY.current + 4) setHidden(true);
+      else if (y < lastY.current - 4) setHidden(false);
+      else if (y <= 60) setHidden(false);
+      lastY.current = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const cls = [
+    'site',
+    scrolled ? 'is-scrolled' : '',
+    hidden ? 'is-hidden' : '',
+  ].filter(Boolean).join(' ');
+
   return (
-    <header className="site" ref={ref}>
+    <header className={cls} ref={ref}>
       <div className="header-l">
         <Logo />
         <nav className="nav">

@@ -78,6 +78,20 @@ button { font: inherit; border: 0; background: 0; padding: 0; cursor: pointer; c
 .btn-outline      { background: transparent; border: 1px solid var(--c-beige-300); color: var(--c-ink); }
 
 .svg-stroke { stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* SVG у малих утиліт-контейнерах не повинен виходити за межі (default svg = 300×150) */
+.case-card .zoom svg,
+.case-nav svg,
+.arrow-btn svg,
+.lb-close svg,
+.lb-prev svg,
+.lb-next svg,
+.case-modal .x svg,
+.phone-tag svg,
+.hf-field .ctl svg,
+.hf-field .ctl .arr,
+.menu-btn svg,
+.footer-contact .socials svg { max-width: 100%; max-height: 100%; }
 .caret-r::after, .arrow-icon::after {
   content: ""; display: inline-block;
   width: 0; height: 0;
@@ -88,12 +102,23 @@ button { font: inherit; border: 0; background: 0; padding: 0; cursor: pointer; c
 
 /* ── Header ───────────────────────────────────────────────────── */
 header.site {
-  position: absolute; top: 0; left: 0; right: 0;
+  position: fixed; top: 0; left: 0; right: 0;
   height: 90px;
   padding: 20px var(--pad-x);
   display: flex; align-items: center; justify-content: space-between;
-  z-index: 10;
+  z-index: 50;
+  background: transparent;
+  transition: transform .35s cubic-bezier(.4,0,.2,1), background .3s ease, backdrop-filter .3s ease, box-shadow .3s ease, height .25s ease;
+  will-change: transform;
 }
+header.site.is-scrolled {
+  height: 72px;
+  background: rgba(28,22,18,.78);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+header.site.is-hidden { transform: translateY(-110%); }
 .logo { display: flex; flex-direction: column; gap: 3px; width: 66px; }
 .logo .mark { width: 66px; height: 44px; background: url(/assets/logo.png) center/contain no-repeat; }
 .logo .tagline {

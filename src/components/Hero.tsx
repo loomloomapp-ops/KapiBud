@@ -27,8 +27,9 @@ export default function Hero() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const ctx = gsap.context(() => {
-      gsap.from('.hero h1', { y: 40, opacity: 0, duration: 1.1, ease: 'power3.out', delay: 0.1 });
-      gsap.from('.hero .lede', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.3 });
+      // Селектори без префіксу .hero — scope обмежено самою .hero
+      gsap.from('h1', { y: 40, opacity: 0, duration: 1.1, ease: 'power3.out', delay: 0.1 });
+      gsap.from('.lede', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.3 });
       gsap.from('.hero-ctas .btn', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1, delay: 0.55 });
       gsap.from('.trust .it', { y: 20, opacity: 0, duration: 0.7, ease: 'power3.out', stagger: 0.08, delay: 0.7 });
       gsap.from('.hero-form', { x: 60, opacity: 0, duration: 1.1, ease: 'power3.out', delay: 0.25 });
