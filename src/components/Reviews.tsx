@@ -63,6 +63,8 @@ export default function Reviews() {
                     <div className="hd">
                       <div
                         className={`av ${r.av.startsWith('#') ? '' : r.av}`}
+                        role="img"
+                        aria-label={`Аватар ${r.nm}`}
                         style={r.av.startsWith('#') ? { background: r.av } : undefined}
                       />
                       <div>

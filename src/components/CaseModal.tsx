@@ -60,6 +60,8 @@ export default function CaseModal({ item, onClose, onEstimate }: Props) {
                 key={`${m.kind}-${m.src}`}
                 className={`cell ${m.kind === 'video' ? 'is-video' : ''}`}
                 style={m.kind === 'image' ? { backgroundImage: `url(${m.src})` } : undefined}
+                role={m.kind === 'image' ? 'img' : undefined}
+                aria-label={m.kind === 'image' ? `${item.title} — фото ${idx + 1}` : `${item.title} — відео ${idx + 1}`}
                 onClick={() => setLightboxIdx(idx)}
               >
                 {m.kind === 'video' && (
@@ -93,9 +95,19 @@ export default function CaseModal({ item, onClose, onEstimate }: Props) {
             <IconChevronLeft />
           </button>
           {media[lightboxIdx].kind === 'image' ? (
-            <img src={media[lightboxIdx].src} alt={item.title} onClick={(e) => e.stopPropagation()} />
+            <img
+              src={media[lightboxIdx].src}
+              alt={`${item.title} — фото ${lightboxIdx + 1} з ${media.length}`}
+              onClick={(e) => e.stopPropagation()}
+            />
           ) : (
-            <video src={media[lightboxIdx].src} controls autoPlay onClick={(e) => e.stopPropagation()} />
+            <video
+              src={media[lightboxIdx].src}
+              controls
+              autoPlay
+              aria-label={`${item.title} — відео`}
+              onClick={(e) => e.stopPropagation()}
+            />
           )}
           <button className="lb-next" onClick={(e) => {
             e.stopPropagation();

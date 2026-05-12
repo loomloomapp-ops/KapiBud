@@ -409,7 +409,9 @@ section.cases { padding: 100px var(--pad-x); }
   user-select: none;
 }
 .case-viewport.is-dragging { cursor: grabbing; }
-.case-viewport.is-dragging .case-card { pointer-events: none; }
+/* Не блокуємо pointer-events на картках під час dragging — click після
+   pointerup приходить раніше, ніж React встигне зняти .is-dragging клас,
+   і click ховався. Drag-через-click ловить onClickCapture у useSlider. */
 .case-track {
   display: flex;
   will-change: transform;

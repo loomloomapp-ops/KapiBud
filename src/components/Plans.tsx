@@ -62,7 +62,12 @@ export default function Plans() {
         {PLANS.map((p, i) => (
           <div className="plan" key={`${p.name}-${i}`}>
             <div className="ph">
-              <div className="ph-img" style={{ backgroundImage: `url(${p.ph})` }} />
+              <div
+                className="ph-img"
+                role="img"
+                aria-label={`Приклад інтер'єру — ${p.name}`}
+                style={{ backgroundImage: `url(${p.ph})` }}
+              />
             </div>
             <div className="plan-body">
               <div className="name">{p.name}</div>

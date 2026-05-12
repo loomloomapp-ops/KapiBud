@@ -63,9 +63,11 @@ export default function Cases({ onOpen }: Props) {
                     <div className="ph">
                       <div
                         className="ph-img"
+                        role="img"
+                        aria-label={`Фото проєкту: ${c.title}`}
                         style={{ backgroundImage: `url(/cases/${c.slug}/${c.photos[0]})` }}
                       />
-                      <span className="zoom"><IconZoom /></span>
+                      <span className="zoom" aria-hidden="true"><IconZoom /></span>
                     </div>
                     <div className="cc-body">
                       <h3>{c.title}</h3>
