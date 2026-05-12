@@ -53,26 +53,28 @@ export default function Header({ onCtaClick }: Props) {
 
   return (
     <header className={cls} ref={ref}>
-      <div className="header-l">
-        <Logo />
-        <nav className="nav">
-          <a href="#cases">Проєкти</a>
-          <a href="#reviews">Відгуки</a>
-          <a href="#prices">Ціни</a>
-          <a href="#faq">FaQ</a>
-        </nav>
-      </div>
-      <div className="header-r">
-        <a className="phone-tag" href="tel:+380630282440">
-          <IconPhone />
-          +380 63 028 2440
-        </a>
-        <button className="btn btn-glass" onClick={onCtaClick}>
-          отримати прорахунок <span className="arr" />
-        </button>
-        <button className="menu-btn" aria-label="Меню" onClick={onCtaClick}>
-          <span /><span /><span />
-        </button>
+      <div className="site-inner">
+        <div className="header-l">
+          <Logo />
+          <nav className="nav">
+            <a href="#cases">Проєкти</a>
+            <a href="#reviews">Відгуки</a>
+            <a href="#prices">Ціни</a>
+            <a href="#faq">FaQ</a>
+          </nav>
+        </div>
+        <div className="header-r">
+          <a className="phone-tag" href="tel:+380630282440">
+            <IconPhone />
+            +380 63 028 2440
+          </a>
+          <button className="btn btn-glass" onClick={onCtaClick}>
+            отримати прорахунок <span className="arr" />
+          </button>
+          <button className="menu-btn" aria-label="Меню" onClick={onCtaClick}>
+            <span /><span /><span />
+          </button>
+        </div>
       </div>
     </header>
   );

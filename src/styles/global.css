@@ -104,12 +104,19 @@ button { font: inherit; border: 0; background: 0; padding: 0; cursor: pointer; c
 header.site {
   position: fixed; top: 0; left: 0; right: 0;
   height: 90px;
-  padding: 20px var(--pad-x);
-  display: flex; align-items: center; justify-content: space-between;
   z-index: 50;
   background: transparent;
   transition: transform .35s cubic-bezier(.4,0,.2,1), background .3s ease, backdrop-filter .3s ease, box-shadow .3s ease, height .25s ease;
   will-change: transform;
+}
+/* Inner wrapper обмежує контент до 1440px (як .page) і додає горизонтальні
+   паддінги; сам header розтягнутий на всю ширину для blur-фону. */
+header.site .site-inner {
+  max-width: 1440px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--pad-x);
+  display: flex; align-items: center; justify-content: space-between;
 }
 header.site.is-scrolled {
   height: 72px;
