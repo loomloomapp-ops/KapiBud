@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { IconChevron, IconChevronLeft } from './Icons';
 import { useScrollReveal } from '../anim/useScrollReveal';
+import { useSlider } from '../anim/useSlider';
 
 const REVIEWS = [
   { nm: 'Іван Коваленко', when: '2 дні тому',    av: 'av-1', text: 'Дуже задоволений роботою. Все зробили в обумовлені терміни, без затримок і "сюрпризів" по бюджету. Команда реально знає свою справу' },
@@ -28,11 +29,15 @@ function useCols() {
 export default function Reviews() {
   const cols = useCols();
   const totalPages = Math.ceil(REVIEWS.length / cols);
-  const [page, setPage] = useState(0);
-  useScrollReveal('.r-card', { stagger: 0.06 });
-  useEffect(() => { if (page > totalPages - 1) setPage(0); }, [cols, page, totalPages]);
+  const { page, setPage, viewportRef, dragging, trackStyle, handlers } = useSlider(totalPages);
+  useScrollReveal('.reviews-track > .review-cards:first-child .r-card', { stagger: 0.06, y: 0, duration: 0.6 });
+  useEffect(() => { if (page > totalPages - 1) setPage(0); }, [cols, page, totalPages, setPage]);
 
-  const visible = REVIEWS.slice(page * cols, page * cols + cols);
+  const groups = useMemo(() => {
+    const arr: typeof REVIEWS[] = [];
+    for (let i = 0; i < REVIEWS.length; i += cols) arr.push(REVIEWS.slice(i, i + cols));
+    return arr;
+  }, [cols]);
 
   return (
     <section className="reviews" id="reviews">
@@ -42,33 +47,43 @@ export default function Reviews() {
       </p>
 
       <div className="reviews-wrap">
-        <button className="arrow-btn" aria-label="prev" onClick={() => setPage((p) => Math.max(0, p - 1))}>
+        <button className="arrow-btn" aria-label="prev" onClick={() => setPage((p) => p - 1)}>
           <IconChevronLeft />
         </button>
-        <div className="review-cards">
-          {visible.map((r) => (
-            <div className="r-card" key={r.nm + r.when}>
-              <div className="hd">
-                <div
-                  className={`av ${r.av.startsWith('#') ? '' : r.av}`}
-                  style={r.av.startsWith('#') ? { background: r.av } : undefined}
-                />
-                <div>
-                  <div className="nm">{r.nm}</div>
-                  <div className="when">{r.when}</div>
-                </div>
-                <svg className="more" viewBox="0 0 20 20" fill="currentColor">
-                  <circle cx="4" cy="10" r="1.5" />
-                  <circle cx="10" cy="10" r="1.5" />
-                  <circle cx="16" cy="10" r="1.5" />
-                </svg>
+        <div
+          className={`reviews-viewport ${dragging ? 'is-dragging' : ''}`}
+          ref={viewportRef}
+          {...handlers}
+        >
+          <div className="reviews-track" style={trackStyle}>
+            {groups.map((group, gi) => (
+              <div className="review-cards" key={gi} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+                {group.map((r) => (
+                  <div className="r-card" key={r.nm + r.when}>
+                    <div className="hd">
+                      <div
+                        className={`av ${r.av.startsWith('#') ? '' : r.av}`}
+                        style={r.av.startsWith('#') ? { background: r.av } : undefined}
+                      />
+                      <div>
+                        <div className="nm">{r.nm}</div>
+                        <div className="when">{r.when}</div>
+                      </div>
+                      <svg className="more" viewBox="0 0 20 20" fill="currentColor">
+                        <circle cx="4" cy="10" r="1.5" />
+                        <circle cx="10" cy="10" r="1.5" />
+                        <circle cx="16" cy="10" r="1.5" />
+                      </svg>
+                    </div>
+                    <div className="stars">★★★★★</div>
+                    <p>{r.text}</p>
+                  </div>
+                ))}
               </div>
-              <div className="stars">★★★★★</div>
-              <p>{r.text}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-        <button className="arrow-btn" aria-label="next" onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}>
+        <button className="arrow-btn" aria-label="next" onClick={() => setPage((p) => p + 1)}>
           <IconChevron />
         </button>
       </div>

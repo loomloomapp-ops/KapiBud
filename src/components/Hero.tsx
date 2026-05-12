@@ -23,21 +23,48 @@ export default function Hero() {
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
 
-  // Hero intro animation + parallax background
+  // Mobile mini-quiz state (показується ≤640px замість full form)
+  const [mStep, setMStep] = useState<1 | 2>(1);
+  const [mObj, setMObj] = useState('');
+  const [mName, setMName] = useState('');
+  const [mPhone, setMPhone] = useState('');
+  const [mStatus, setMStatus] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
+
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Стартові стани — щоб контент не з'являвся ДО прелоадера
     const ctx = gsap.context(() => {
-      // Селектори без префіксу .hero — scope обмежено самою .hero
-      gsap.from('h1', { y: 40, opacity: 0, duration: 1.1, ease: 'power3.out', delay: 0.1 });
-      gsap.from('.lede', { y: 30, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.3 });
-      gsap.from('.hero-ctas .btn', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1, delay: 0.55 });
-      gsap.from('.trust .it', { y: 20, opacity: 0, duration: 0.7, ease: 'power3.out', stagger: 0.08, delay: 0.7 });
-      gsap.from('.hero-form', { x: 60, opacity: 0, duration: 1.1, ease: 'power3.out', delay: 0.25 });
-      // background slow zoom-out
-      if (bgRef.current) {
-        gsap.fromTo(bgRef.current, { scale: 1.12 }, { scale: 1, duration: 2.4, ease: 'power2.out' });
-      }
+      gsap.set('h1, .lede, .hero-ctas .btn, .trust .it, .hero-form, .hero-quiz-m', { opacity: 0 });
     }, heroRef);
+
+    const runIntro = () => {
+      gsap.context(() => {
+        gsap.fromTo('h1', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out', delay: 0.1 });
+        gsap.fromTo('.lede', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.3 });
+        gsap.fromTo('.hero-ctas .btn', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.1, delay: 0.55 });
+        gsap.fromTo('.trust .it', { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.08, delay: 0.7 });
+        gsap.fromTo('.hero-form, .hero-quiz-m', { x: 60, opacity: 0 }, { x: 0, opacity: 1, duration: 1.1, ease: 'power3.out', delay: 0.25 });
+        if (bgRef.current) {
+          gsap.fromTo(bgRef.current, { scale: 1.12 }, { scale: 1, duration: 2.4, ease: 'power2.out' });
+        }
+      }, heroRef);
+    };
+
+    // Якщо прелоадер вже не активний (наприклад, перехід по навігації) — стартуємо одразу.
+    if (document.body.classList.contains('loaded') || !document.body.classList.contains('is-loading')) {
+      runIntro();
+    } else {
+      window.addEventListener('preloader-done', runIntro, { once: true });
+      // safety: якщо подія загубиться, через 7с все одно показуємо контент.
+      const safety = window.setTimeout(runIntro, 7000);
+      return () => {
+        window.removeEventListener('preloader-done', runIntro);
+        window.clearTimeout(safety);
+        ctx.revert();
+      };
+    }
+
     return () => ctx.revert();
   }, []);
 
@@ -57,6 +84,19 @@ export default function Hero() {
     if (r.ok) {
       setName(''); setPhone(''); setMessage('');
     }
+  }
+
+  async function onMobileSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (mStatus === 'sending') return;
+    if (!mName.trim() || !mPhone.trim()) return;
+    setMStatus('sending');
+    const r = await sendLead({
+      source: 'hero-form',
+      name: mName, phone: mPhone,
+      objectType: mObj,
+    });
+    setMStatus(r.ok ? 'ok' : 'err');
   }
 
   return (
@@ -80,6 +120,7 @@ export default function Hero() {
           </div>
         </div>
 
+        {/* Десктоп / планшет — повна форма */}
         <form className="hero-form" onSubmit={onSubmit}>
           <h3>Отримайте безкоштовну консультацію</h3>
           <p className="sub">Залиште заявку — ми зв'яжемося з вами, уточнимо деталі та підготуємо попередній розрахунок вартості ремонту</p>
@@ -131,6 +172,53 @@ export default function Hero() {
           <button className="hf-submit" type="submit" disabled={status === 'sending'}>
             {status === 'sending' ? 'Відправляємо…' : 'Відправити'} <span className="arr" />
           </button>
+        </form>
+
+        {/* Мобільний — компактний 2-кроковий квіз */}
+        <form className="hero-quiz-m" onSubmit={onMobileSubmit}>
+          <div className="hqm-head">
+            <span className="hqm-step">Крок {mStep}/2</span>
+            <h3>{mStep === 1 ? 'Що ремонтуємо?' : 'Куди вам зателефонувати?'}</h3>
+          </div>
+
+          {mStep === 1 && (
+            <>
+              <div className="hqm-opts">
+                {OBJECT_TYPES.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    className={`hqm-opt ${mObj === t ? 'active' : ''}`}
+                    onClick={() => { setMObj(t); setMStep(2); }}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+              <p className="hqm-hint">Оберіть тип об'єкта — далі лише ім'я і телефон</p>
+            </>
+          )}
+
+          {mStep === 2 && (
+            <>
+              <div className="hqm-field">
+                <IconUser />
+                <input value={mName} onChange={(e) => setMName(e.target.value)} placeholder="Ваше ім'я" required />
+              </div>
+              <div className="hqm-field">
+                <IconCallSmall />
+                <input value={mPhone} onChange={(e) => setMPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" type="tel" required />
+              </div>
+              {mStatus === 'ok' && <div className="hf-success">Дякуємо! Ми зателефонуємо вам найближчим часом.</div>}
+              {mStatus === 'err' && <div className="hf-error">Помилка відправки. Спробуйте ще раз.</div>}
+              <div className="hqm-row">
+                <button type="button" className="hqm-back" onClick={() => setMStep(1)}>Назад</button>
+                <button className="hqm-submit" type="submit" disabled={mStatus === 'sending'}>
+                  {mStatus === 'sending' ? 'Відправляємо…' : 'Залишити заявку'}
+                </button>
+              </div>
+            </>
+          )}
         </form>
       </div>
     </section>

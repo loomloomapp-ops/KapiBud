@@ -11,6 +11,9 @@ const PARTNERS = [
   { cls: 'EPICENTRE', label: 'Епіцентр', cap: 'економію вашого часу та ресурсів' },
 ];
 
+// Дублюємо набір, щоб marquee був безшовний (animation translateX -50%).
+const TRACK = [...PARTNERS, ...PARTNERS];
+
 export default function Partners() {
   useScrollReveal('.partner-card', { stagger: 0.05 });
   return (
@@ -19,13 +22,15 @@ export default function Partners() {
         <h2>Працюємо з перевіреними партнерами</h2>
         <span className="tag tag-light">Партнери</span>
       </div>
-      <div className="partner-row">
-        {PARTNERS.map((p) => (
-          <div className="partner-card" key={p.label}>
-            <div className={`lg ${p.cls}`}>{p.label}</div>
-            <div className="cap">{p.cap}</div>
-          </div>
-        ))}
+      <div className="partner-marquee" aria-hidden="false">
+        <div className="partner-track">
+          {TRACK.map((p, i) => (
+            <div className="partner-card" key={`${p.label}-${i}`}>
+              <div className={`lg ${p.cls}`}>{p.label}</div>
+              <div className="cap">{p.cap}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cases, type CaseItem } from '../data/cases';
 import { IconZoom, IconChevronLeft, IconChevron } from './Icons';
 import { useScrollReveal } from '../anim/useScrollReveal';
+import { useSlider } from '../anim/useSlider';
 
 type Props = { onOpen: (c: CaseItem) => void };
 
@@ -22,13 +23,18 @@ function useColsPerPage() {
 export default function Cases({ onOpen }: Props) {
   const perPage = useColsPerPage();
   const totalPages = Math.ceil(cases.length / perPage);
-  const [page, setPage] = useState(0);
+  const { page, setPage, viewportRef, dragging, trackStyle, handlers } = useSlider(totalPages);
 
-  useEffect(() => { if (page > totalPages - 1) setPage(0); }, [perPage, page, totalPages]);
-  useScrollReveal('.case-card', { stagger: 0.08 });
+  useEffect(() => { if (page > totalPages - 1) setPage(0); }, [perPage, page, totalPages, setPage]);
+  // Reveal лише першу сторінку — щоб не було «східцевих» offsets на інших слайдах.
+  // y:0 (тільки opacity), бо translateY клiпається оверфлоу-вьюпортом і обрізає низ карток.
+  useScrollReveal('.case-page:first-child .case-card', { stagger: 0.08, y: 0, duration: 0.6 });
 
-  const start = page * perPage;
-  const visible = cases.slice(start, start + perPage);
+  const groups = useMemo(() => {
+    const arr: CaseItem[][] = [];
+    for (let i = 0; i < cases.length; i += perPage) arr.push(cases.slice(i, i + perPage));
+    return arr;
+  }, [perPage]);
 
   return (
     <section className="cases" id="cases">
@@ -39,36 +45,47 @@ export default function Cases({ onOpen }: Props) {
         <button
           className="case-nav prev"
           aria-label="Попередній"
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          onClick={() => setPage((p) => p - 1)}
           disabled={page === 0}
         >
           <IconChevronLeft />
         </button>
-        <div className="case-track">
-          {visible.map((c) => (
-            <article key={c.slug} className="case-card" onClick={() => onOpen(c)}>
-              <div
-                className="ph"
-                style={{ backgroundImage: `url(/cases/${c.slug}/${c.photos[0]})` }}
-              >
-                <span className="zoom"><IconZoom /></span>
+        <div
+          className={`case-viewport ${dragging ? 'is-dragging' : ''}`}
+          ref={viewportRef}
+          {...handlers}
+        >
+          <div className="case-track" style={trackStyle}>
+            {groups.map((group, gi) => (
+              <div className="case-page" key={gi}>
+                {group.map((c) => (
+                  <article key={c.slug} className="case-card" onClick={() => onOpen(c)}>
+                    <div className="ph">
+                      <div
+                        className="ph-img"
+                        style={{ backgroundImage: `url(/cases/${c.slug}/${c.photos[0]})` }}
+                      />
+                      <span className="zoom"><IconZoom /></span>
+                    </div>
+                    <div className="cc-body">
+                      <h3>{c.title}</h3>
+                      <div className="div" />
+                      <div className="meta">
+                        <div><div className="k">Бюджет</div><div className="v">{c.budget || '—'}</div></div>
+                        <div><div className="k">Дата</div><div className="v">{c.date || '—'}</div></div>
+                        <div><div className="k">Площа</div><div className="v">{c.area || '—'}</div></div>
+                      </div>
+                    </div>
+                  </article>
+                ))}
               </div>
-              <div className="cc-body">
-                <h3>{c.title}</h3>
-                <div className="div" />
-                <div className="meta">
-                  <div><div className="k">Бюджет</div><div className="v">{c.budget || '—'}</div></div>
-                  <div><div className="k">Дата</div><div className="v">{c.date || '—'}</div></div>
-                  <div><div className="k">Площа</div><div className="v">{c.area || '—'}</div></div>
-                </div>
-              </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
         <button
           className="case-nav next"
           aria-label="Наступний"
-          onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+          onClick={() => setPage((p) => p + 1)}
           disabled={page >= totalPages - 1}
         >
           <IconChevron />

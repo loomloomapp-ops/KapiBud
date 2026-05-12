@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { IconPhone } from './Icons';
+import { IconPhone, IconClose } from './Icons';
 
 const Logo = () => (
   <a href="#top" className="logo" aria-label="KapiBud">
     <div className="mark" />
-    <div className="tagline">
-      <span>ремонт</span><span className="dot" /><span>дизайн</span><span className="dot" /><span>будівництво</span>
-    </div>
   </a>
 );
 
@@ -17,11 +14,8 @@ export default function Header({ onCtaClick }: Props) {
   const lastY = useRef(0);
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Sticky + hide-on-scroll-down
-  // (Інтро-анімація хедера прибрана: у StrictMode/dev `ctx.revert()` лишав
-  // елементи у from-state, плюс scroll-listener re-render під час анімації
-  // призводив до "застряглих" пунктів меню / зміщеної кнопки.)
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
@@ -36,38 +30,90 @@ export default function Header({ onCtaClick }: Props) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // lock body scroll while drawer is open + Esc to close
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
+
   const cls = [
     'site',
     scrolled ? 'is-scrolled' : '',
     hidden ? 'is-hidden' : '',
   ].filter(Boolean).join(' ');
 
+  function closeAndScroll(handler?: () => void) {
+    return () => {
+      setMenuOpen(false);
+      handler?.();
+    };
+  }
+
   return (
-    <header className={cls} ref={ref}>
-      <div className="site-inner">
-        <div className="header-l">
-          <Logo />
-          <nav className="nav">
-            <a href="#cases">Проєкти</a>
-            <a href="#reviews">Відгуки</a>
-            <a href="#prices">Ціни</a>
-            <a href="#faq">FaQ</a>
-          </nav>
+    <>
+      <header className={cls} ref={ref}>
+        <div className="site-inner">
+          <div className="header-l">
+            <Logo />
+            <nav className="nav">
+              <a href="#cases">Проєкти</a>
+              <a href="#reviews">Відгуки</a>
+              <a href="#prices">Ціни</a>
+              <a href="#faq">FaQ</a>
+            </nav>
+          </div>
+          <div className="header-r">
+            <a className="phone-tag" href="tel:+380630282440">
+              <IconPhone />
+              +380 63 028 2440
+            </a>
+            <button className="btn btn-glass" onClick={onCtaClick}>
+              отримати прорахунок <span className="arr" />
+            </button>
+            <button
+              className={`menu-btn ${menuOpen ? 'is-open' : ''}`}
+              aria-label={menuOpen ? 'Закрити меню' : 'Меню'}
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span /><span /><span />
+            </button>
+          </div>
         </div>
-        <div className="header-r">
-          <a className="phone-tag" href="tel:+380630282440">
-            <IconPhone />
-            +380 63 028 2440
+      </header>
+
+      <div className={`menu-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
+        <button className="md-close" aria-label="Закрити" onClick={() => setMenuOpen(false)}>
+          <IconClose />
+        </button>
+        <nav className="md-nav">
+          <a href="#cases" onClick={closeAndScroll()}>Проєкти</a>
+          <a href="#reviews" onClick={closeAndScroll()}>Відгуки</a>
+          <a href="#prices" onClick={closeAndScroll()}>Ціни</a>
+          <a href="#faq" onClick={closeAndScroll()}>FaQ</a>
+        </nav>
+        <div className="md-foot">
+          <a className="md-phone" href="tel:+380630282440">
+            <IconPhone /> +380 63 028 2440
           </a>
-          <button className="btn btn-glass" onClick={onCtaClick}>
+          <button
+            className="btn btn-beige md-cta"
+            onClick={closeAndScroll(onCtaClick)}
+          >
             отримати прорахунок <span className="arr" />
-          </button>
-          <button className="menu-btn" aria-label="Меню" onClick={onCtaClick}>
-            <span /><span /><span />
           </button>
         </div>
       </div>
-    </header>
+      <div
+        className={`menu-backdrop ${menuOpen ? 'is-open' : ''}`}
+        onClick={() => setMenuOpen(false)}
+        aria-hidden="true"
+      />
+    </>
   );
 }
 

@@ -1,53 +1,56 @@
 import { useScrollReveal } from '../anim/useScrollReveal';
 
+const BASE_ITEMS = [
+  'Виготовлення схем та креслень',
+  'Підготовчий етап',
+  'Демонтаж',
+  'Монтаж',
+  'Кондиціювання (укладання траси)',
+  'Електромонтаж (укладання траси, складання щита, монтаж підрозетників)',
+  'Сантехнічні роботи (виведення водяних точок, монтаж прихованих систем)',
+  'Штукатурка',
+  'Влаштування чорнової підлоги',
+  'Укладання плитки',
+  'Шпаклівка',
+  'Монтаж натяжної стелі та міжкімнатних дверей',
+  'Малярні роботи (фарбування поверхні, поклейка шпалер)',
+  'Укладання підлогового покриття',
+];
+
+const STANDARD_EXTRAS = [
+  'Встановлення блоків кондиціонерів',
+  'Електромонтаж (монтаж розеток, вмикачів, освітлювальних приладів)',
+  'Сантехнічні роботи (установка сантехнічних приладів)',
+];
+
+const PREMIUM_EXTRAS = [
+  ...STANDARD_EXTRAS,
+  'Складання меблів',
+  'Підключення техніки + (декорування)',
+  'Клінінг',
+];
+
 const PLANS = [
   {
     name: 'Тариф базовий',
-    price: '6 399 грн/м²',
-    items: [
-      'Заміри та технічне обстеження',
-      'Планувальне рішення',
-      'Демонтаж',
-      'План меблів',
-      'План з розміщенням сантехніки',
-      'План з розміщенням розеток та вимикачів',
-      'Креслення стелі',
-    ],
-    term: '14–21 дн.',
-    btn: 'btn-beige',
-    ph: 'ph-1',
+    price: '5399 грн/м²',
+    items: BASE_ITEMS,
+    term: 'від 2-х міс',
+    ph: '/assets/plan-1.jpg',
   },
   {
     name: 'Тариф стандарт',
-    price: '6 299 грн/м²',
-    items: [
-      'Все, що в базовому',
-      '3D візуалізація',
-      'Адаптовані креслення під виконання',
-      'Креслення сан. вузла',
-      'Креслення кухні',
-      'Підбір матеріалів',
-      'Авторський нагляд (4 виїзди)',
-    ],
-    term: 'від 30 дн.',
-    btn: 'btn-dark',
-    ph: 'ph-2',
+    price: '6299 грн/м²',
+    items: [...BASE_ITEMS, ...STANDARD_EXTRAS],
+    term: 'від 2-х міс',
+    ph: '/assets/plan-2.jpg',
   },
   {
-    name: 'Тариф преміум',
-    price: '6 499 грн/м²',
-    items: [
-      'Все, що в стандарті',
-      'Авторський супровід',
-      'Підбір меблів та декору',
-      'Креслення підлоги',
-      'Креслення стелі',
-      'Розгортки санвузла',
-      'Підбір сантехніки та плитки',
-    ],
-    term: 'від 60 дн.',
-    btn: 'btn-beige',
-    ph: 'ph-3',
+    name: 'Тариф базовий',
+    price: '5399 грн/м²',
+    items: [...BASE_ITEMS, ...PREMIUM_EXTRAS],
+    term: 'від 2-х міс',
+    ph: '/assets/plan-3.jpg',
   },
 ];
 
@@ -55,21 +58,24 @@ export default function Plans() {
   useScrollReveal('.plan', { stagger: 0.1 });
   return (
     <section className="plans">
-      <h2>Створимо дизайн і візьмемо все на себе</h2>
-      <p className="sub">Врахуємо ваші побажання, підготуємо проєкт і допоможемо реалізувати його без зайвого стресу</p>
       <div className="plan-grid">
-        {PLANS.map((p) => (
-          <div className="plan" key={p.name + p.price}>
-            <div className={`ph ${p.ph}`} />
-            <div className="name">{p.name}</div>
-            <div className="price">{p.price}</div>
-            <ul>
-              {p.items.map((i) => <li key={i}>{i}</li>)}
-            </ul>
-            <div className="foot">
-              <div className="meta">Термін виконання<br />{p.term}</div>
+        {PLANS.map((p, i) => (
+          <div className="plan" key={`${p.name}-${i}`}>
+            <div className="ph">
+              <div className="ph-img" style={{ backgroundImage: `url(${p.ph})` }} />
             </div>
-            <a href="#estimate" className={`btn ${p.btn}`}>Замовити <span className="arr" /></a>
+            <div className="plan-body">
+              <div className="name">{p.name}</div>
+              <div className="price">{p.price}</div>
+              <ul>
+                {p.items.map((it) => <li key={it}>{it}</li>)}
+              </ul>
+              <div className="term">
+                <span className="t-label">Терміни виконання:</span>
+                <span className="t-value">{p.term}</span>
+              </div>
+              <a href="#estimate" className="btn btn-dark plan-cta">Замовити</a>
+            </div>
           </div>
         ))}
       </div>
