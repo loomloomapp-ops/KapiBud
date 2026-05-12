@@ -37,3 +37,12 @@ export function smoothScrollTo(target: HTMLElement | string | number, opts?: { o
 export function getLenis() {
   return lenisInstance;
 }
+
+// Зупиняє/відновлює глобальний smooth-scroll. Викликається при відкритті
+// модалок (CaseModal, lead-popup) щоб wheel/touch скролили модалку, а не сайт.
+export function pauseSmoothScroll() {
+  lenisInstance?.stop();
+}
+export function resumeSmoothScroll() {
+  lenisInstance?.start();
+}

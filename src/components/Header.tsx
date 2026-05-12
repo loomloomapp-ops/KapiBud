@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconPhone, IconClose } from './Icons';
+import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
 
 const Logo = () => (
   <a href="#top" className="logo" aria-label="PrimeBud — на головну">
@@ -35,9 +36,14 @@ export default function Header({ onCtaClick }: Props) {
     if (!menuOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    pauseSmoothScroll();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
     window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+    return () => {
+      document.body.style.overflow = prev;
+      resumeSmoothScroll();
+      window.removeEventListener('keydown', onKey);
+    };
   }, [menuOpen]);
 
   const cls = [
@@ -86,7 +92,7 @@ export default function Header({ onCtaClick }: Props) {
         </div>
       </header>
 
-      <div className={`menu-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
+      <div className={`menu-drawer ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen} data-lenis-prevent>
         <button className="md-close" aria-label="Закрити" onClick={() => setMenuOpen(false)}>
           <IconClose />
         </button>

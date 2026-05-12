@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useScrollReveal } from '../anim/useScrollReveal';
 import { sendLead } from '../lib/lead';
 import { IconClose } from './Icons';
+import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
 
 const SERVICES = [
   {
@@ -41,9 +42,14 @@ export default function Services({ onEstimateClick }: Props) {
     if (!openFor) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    pauseSmoothScroll();
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
     window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+    return () => {
+      document.body.style.overflow = prev;
+      resumeSmoothScroll();
+      window.removeEventListener('keydown', onKey);
+    };
   }, [openFor]);
 
   function close() {
@@ -104,8 +110,8 @@ export default function Services({ onEstimateClick }: Props) {
       </div>
 
       {openFor && (
-        <div className="modal-overlay" onClick={close}>
-          <div className="lead-popup" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay" onClick={close} data-lenis-prevent>
+          <div className="lead-popup" onClick={(e) => e.stopPropagation()} data-lenis-prevent>
             <button className="x" type="button" onClick={close} aria-label="Закрити"><IconClose /></button>
             <h3>Залишити заявку</h3>
             <p className="sub">Тариф: <b>{openFor}</b>. Залиште контакти — ми зателефонуємо й уточнимо деталі.</p>

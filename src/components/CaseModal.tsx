@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { CaseItem } from '../data/cases';
 import { IconClose, IconChevron, IconChevronLeft } from './Icons';
+import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
 
 type Props = { item: CaseItem | null; onClose: () => void; onEstimate: () => void };
 
@@ -13,7 +14,12 @@ export default function CaseModal({ item, onClose, onEstimate }: Props) {
   useEffect(() => {
     if (!item) return;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    // Lenis треба зупинити, інакше wheel/touch скролять сторінку, а не модалку.
+    pauseSmoothScroll();
+    return () => {
+      document.body.style.overflow = '';
+      resumeSmoothScroll();
+    };
   }, [item]);
 
   // Keyboard навігація — може перереєструватись при кожному зміненні стану.
@@ -38,8 +44,8 @@ export default function CaseModal({ item, onClose, onEstimate }: Props) {
 
   return (
     <>
-      <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
-        <div className="case-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" data-lenis-prevent>
+        <div className="case-modal" onClick={(e) => e.stopPropagation()} data-lenis-prevent>
           <div className="head">
             <div>
               <h2>{item.fullTitle}</h2>
@@ -84,7 +90,7 @@ export default function CaseModal({ item, onClose, onEstimate }: Props) {
       </div>
 
       {lightboxIdx !== null && (
-        <div className="lightbox" onClick={() => setLightboxIdx(null)}>
+        <div className="lightbox" onClick={() => setLightboxIdx(null)} data-lenis-prevent>
           <button className="lb-close" onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}>
             <IconClose width={20} height={20} />
           </button>
