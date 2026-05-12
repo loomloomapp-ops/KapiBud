@@ -1,0 +1,78 @@
+/* ─────────────────────────────────────────────────────────────────
+   KapiBud — Design Tokens
+   Extracted from Figma (Page-1, frames KapiBud / KapiBud2..5)
+   ───────────────────────────────────────────────────────────────── */
+:root {
+  /* ── Color ─────────────────────────────────────────────────────── */
+  --c-bg:           rgb(248, 244, 240);   /* page surface */
+  --c-bg-input:    rgb(248, 250, 249);   /* form field background */
+  --c-surface:      rgb(255, 255, 255);   /* card / panel surface */
+  --c-ink:          rgb(0, 0, 0);         /* primary text on light */
+  --c-ink-on-dark:  rgb(255, 255, 255);   /* primary text on dark */
+  --c-dark:         rgb(36, 28, 24);      /* near-black brown — dark blocks, footer */
+  --c-mute:         rgb(135, 136, 138);   /* secondary / muted text */
+
+  /* Beige / brand accent */
+  --c-beige-100:    rgb(248, 244, 240);
+  --c-beige-300:    rgb(210, 195, 178);   /* primary CTA fill, dividers */
+  --c-beige-500:    rgb(193, 167, 131);   /* logo accent dots */
+
+  /* Form / divider neutrals */
+  --c-divider:      rgba(36, 28, 24, 0.30);
+  --c-divider-light:rgba(255, 255, 255, 0.30);
+  --c-stroke-soft:  rgba(210, 195, 178, 0.40);
+  --c-track:        rgb(235, 235, 235);
+
+  /* Translucent / glass */
+  --glass-bg:       rgba(255, 255, 255, 0.20);
+  --glass-stroke:   rgba(255, 255, 255, 0.20);
+  --glass-stroke-2: rgba(255, 255, 255, 0.50);
+  --scrim:          rgba(0, 0, 0, 0.70);
+
+  /* ── Typography ────────────────────────────────────────────────── */
+  --font-display:   "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-body:      "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+  --font-tag:       "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+
+  /* Type scale */
+  --fs-h1:          60px;   /* desktop hero */
+  --fs-h1-mobile:   36px;
+  --fs-h2:          48px;
+  --fs-h2-section:  45px;
+  --fs-h2-dark:     50px;
+  --fs-h2-mobile:   28px;
+  --fs-h3:          28px;
+  --fs-h4:          24px;
+  --fs-h5:          22px;
+  --fs-body:        16px;
+  --fs-small:       14px;
+  --fs-tiny:        12px;
+
+  /* Line heights */
+  --lh-tight:       1.0;
+  --lh-snug:        1.05;
+  --lh-normal:      1.2;
+  --lh-relaxed:     1.4;
+
+  /* Letter-spacing */
+  --tracking-tight: -0.02em;
+  --tracking-wide:  0.01em;
+
+  /* ── Spacing / Layout ──────────────────────────────────────────── */
+  --pad-x:          120px;   /* desktop page padding */
+  --pad-x-mobile:   16px;
+  --gap-section:    100px;
+  --gap-block:      60px;
+  --gap-md:         30px;
+  --gap-sm:         20px;
+
+  /* ── Radii ─────────────────────────────────────────────────────── */
+  --r-input:        10px;
+  --r-card:         15px;
+  --r-panel:        20px;
+  --r-pill:         20px;
+
+  /* ── Effects ───────────────────────────────────────────────────── */
+  --blur-glass:     blur(5px);
+  --shadow-card:    0 4px 20px rgba(0, 0, 0, 0.04);
+}

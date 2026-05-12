@@ -1,0 +1,20 @@
+import { useScrollReveal } from '../anim/useScrollReveal';
+
+export default function PricingCta() {
+  useScrollReveal('.pricing-cta .img');
+  return (
+    <section className="pricing-cta">
+      <div className="img" />
+      <div>
+        <span className="tag">прайс-лист</span>
+        <h2>Прозорі ціни на ремонт у Києві та Київській області</h2>
+        <p className="sub">
+          Ознайомтесь із повним прайс-листом на всі види робіт — ми працюємо відкрито, тому ви заздалегідь розумієте, за що платите і який бюджет планувати
+        </p>
+        <div style={{ marginTop: 40 }}>
+          <a href="#estimate" className="btn btn-beige-solid">переглянути прайс-лист <span className="arr" /></a>
+        </div>
+      </div>
+    </section>
+  );
+}
