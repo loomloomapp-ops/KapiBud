@@ -1,6 +1,6 @@
 <?php
 /**
- * KapiBud — Lead → Telegram проксі.
+ * PrimeBud — Lead → Telegram проксі.
  *
  * Розгортання на Hostinger:
  *   1. Створи Telegram бота через @BotFather, скопіюй TOKEN.
@@ -71,7 +71,7 @@ if (!$name && !$phone) {
 }
 
 // Збираємо повідомлення
-$lines = ["🛠 <b>KapiBud — нова заявка</b>"];
+$lines = ["🛠 <b>PrimeBud — нова заявка</b>"];
 $lines[] = "<b>Джерело:</b> " . htmlspecialchars($source);
 if ($name)  $lines[] = "<b>Імʼя:</b> "    . htmlspecialchars($name);
 if ($phone) $lines[] = "<b>Телефон:</b> " . htmlspecialchars($phone);
