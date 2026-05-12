@@ -11,7 +11,7 @@ export default function PricingCta() {
         <p className="sub">
           Ознайомтесь із повним прайс-листом на всі види робіт — ми працюємо відкрито, тому ви заздалегідь розумієте, за що платите і який бюджет планувати
         </p>
-        <div style={{ marginTop: 40 }}>
+        <div className="pricing-cta-actions">
           <a href="#estimate" className="btn btn-beige-solid">переглянути прайс-лист <span className="arr" /></a>
         </div>
       </div>

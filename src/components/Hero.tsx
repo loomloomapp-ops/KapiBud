@@ -33,12 +33,18 @@ export default function Hero() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Стартові стани — щоб контент не з'являвся ДО прелоадера
+    let started = false;
+    let safety: number | undefined;
+
     const ctx = gsap.context(() => {
       gsap.set('h1, .lede, .hero-ctas .btn, .trust .it, .hero-form, .hero-quiz-m', { opacity: 0 });
     }, heroRef);
 
     const runIntro = () => {
+      if (started) return;
+      started = true;
+      window.removeEventListener('preloader-done', runIntro);
+      if (safety) window.clearTimeout(safety);
       gsap.context(() => {
         gsap.fromTo('h1', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 1.1, ease: 'power3.out', delay: 0.1 });
         gsap.fromTo('.lede', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.3 });
@@ -51,21 +57,18 @@ export default function Hero() {
       }, heroRef);
     };
 
-    // Якщо прелоадер вже не активний (наприклад, перехід по навігації) — стартуємо одразу.
-    if (document.body.classList.contains('loaded') || !document.body.classList.contains('is-loading')) {
+    if (document.body.classList.contains('loaded')) {
       runIntro();
     } else {
-      window.addEventListener('preloader-done', runIntro, { once: true });
-      // safety: якщо подія загубиться, через 7с все одно показуємо контент.
-      const safety = window.setTimeout(runIntro, 7000);
-      return () => {
-        window.removeEventListener('preloader-done', runIntro);
-        window.clearTimeout(safety);
-        ctx.revert();
-      };
+      window.addEventListener('preloader-done', runIntro);
+      safety = window.setTimeout(runIntro, 7000);
     }
 
-    return () => ctx.revert();
+    return () => {
+      window.removeEventListener('preloader-done', runIntro);
+      if (safety) window.clearTimeout(safety);
+      ctx.revert();
+    };
   }, []);
 
   async function onSubmit(e: React.FormEvent) {

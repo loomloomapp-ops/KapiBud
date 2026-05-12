@@ -60,7 +60,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
           publish_branch: deploy
-          force_orphan: true
+          # force_orphan вимкнено: гілка `deploy` росте лінійно, щоб Hostinger
+          # робив звичайний fast-forward pull по кнопці "Розгорнути".
+          keep_files: false
           commit_message: 'deploy: ${{ github.event.head_commit.message }}'
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'

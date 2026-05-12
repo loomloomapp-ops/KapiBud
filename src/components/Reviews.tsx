@@ -87,6 +87,16 @@ export default function Reviews() {
           <IconChevron />
         </button>
       </div>
+      {totalPages > 1 && (
+        <div className={`swipe-hint ${page > 0 ? 'is-hidden' : ''}`} aria-hidden="true">
+          <svg viewBox="0 0 48 28" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M16 14h22" />
+            <path d="M30 6l8 8-8 8" />
+            <path d="M14 8c-3 2-5 4-5 6s2 4 5 6" opacity=".5" />
+          </svg>
+          <span>Гортайте</span>
+        </div>
+      )}
       <div className="pagination">
         {Array.from({ length: totalPages }).map((_, i) => (
           <span key={i} className={i === page ? 'on' : ''} />
