@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { gsap } from '../anim/useScrollReveal';
 import { IconPhone } from './Icons';
 
 const Logo = () => (
@@ -19,18 +18,10 @@ export default function Header({ onCtaClick }: Props) {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ctx = gsap.context(() => {
-      // Селектори без префіксу .site — scope обмежено самим header'ом
-      gsap.from('.logo, .nav a, .header-r > *', {
-        y: -16, opacity: 0, duration: 0.6, ease: 'power3.out', stagger: 0.05, delay: 0.05,
-      });
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-
   // Sticky + hide-on-scroll-down
+  // (Інтро-анімація хедера прибрана: у StrictMode/dev `ctx.revert()` лишав
+  // елементи у from-state, плюс scroll-listener re-render під час анімації
+  // призводив до "застряглих" пунктів меню / зміщеної кнопки.)
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
