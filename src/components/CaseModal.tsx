@@ -7,23 +7,30 @@ type Props = { item: CaseItem | null; onClose: () => void; onEstimate: () => voi
 export default function CaseModal({ item, onClose, onEstimate }: Props) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
+  // Body-scroll lock — окремий effect, dep лише `item`. Раніше у dep був
+  // lightboxIdx → cleanup скидав overflow на кожну зміну індексу, і браузер
+  // мерехтів від скролбару, що зникав-зʼявлявся (layout shift).
+  useEffect(() => {
+    if (!item) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [item]);
+
+  // Keyboard навігація — може перереєструватись при кожному зміненні стану.
   useEffect(() => {
     if (!item) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (lightboxIdx !== null) setLightboxIdx(null);
         else onClose();
-      } else if (lightboxIdx !== null && item) {
-        if (e.key === 'ArrowRight') setLightboxIdx((i) => (i === null ? 0 : (i + 1) % allMedia(item).length));
-        if (e.key === 'ArrowLeft')  setLightboxIdx((i) => (i === null ? 0 : (i - 1 + allMedia(item).length) % allMedia(item).length));
+      } else if (lightboxIdx !== null) {
+        const n = allMedia(item).length;
+        if (e.key === 'ArrowRight') setLightboxIdx((i) => (i === null ? 0 : (i + 1) % n));
+        if (e.key === 'ArrowLeft')  setLightboxIdx((i) => (i === null ? 0 : (i - 1 + n) % n));
       }
     };
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
-    };
+    return () => document.removeEventListener('keydown', onKey);
   }, [item, lightboxIdx, onClose]);
 
   if (!item) return null;
@@ -51,20 +58,15 @@ export default function CaseModal({ item, onClose, onEstimate }: Props) {
             {media.map((m, idx) => (
               <div
                 key={`${m.kind}-${m.src}`}
-                className="cell"
-                style={{ backgroundImage: m.kind === 'image' ? `url(${m.src})` : `url(${item.photos[0] ? `/cases/${item.slug}/${item.photos[0]}` : ''})` }}
+                className={`cell ${m.kind === 'video' ? 'is-video' : ''}`}
+                style={m.kind === 'image' ? { backgroundImage: `url(${m.src})` } : undefined}
                 onClick={() => setLightboxIdx(idx)}
               >
                 {m.kind === 'video' && (
-                  <div style={{
-                    position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
-                    background: 'rgba(0,0,0,.35)', borderRadius: 12,
-                  }}>
-                    <span style={{
-                      width: 44, height: 44, borderRadius: '50%', background: '#fff',
-                      display: 'grid', placeItems: 'center', color: '#000',
-                    }}>▶</span>
-                  </div>
+                  <>
+                    <span className="play" aria-hidden="true">▶</span>
+                    <span className="vlabel">Відео</span>
+                  </>
                 )}
               </div>
             ))}
