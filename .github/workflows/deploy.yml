@@ -1,0 +1,66 @@
+name: Build and deploy to "deploy" branch
+
+# Білдимо Vite-проєкт і пушимо вміст dist/ у гілку `deploy`,
+# звідки її автоматично тягне Hostinger (Git-розгортання → branch: deploy).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Add SPA helpers (.htaccess + 404.html)
+        run: |
+          cat > dist/.htaccess <<'EOF'
+          <IfModule mod_rewrite.c>
+            RewriteEngine On
+            # Якщо файл/папка не існують → віддаємо index.html (SPA fallback)
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule . index.html [L]
+          </IfModule>
+          <IfModule mod_deflate.c>
+            AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+          </IfModule>
+          <IfModule mod_expires.c>
+            ExpiresActive On
+            ExpiresByType image/jpeg "access plus 30 days"
+            ExpiresByType image/png  "access plus 30 days"
+            ExpiresByType image/webp "access plus 30 days"
+            ExpiresByType video/mp4  "access plus 30 days"
+            ExpiresByType text/css   "access plus 7 days"
+            ExpiresByType application/javascript "access plus 7 days"
+          </IfModule>
+          EOF
+
+      - name: Deploy to "deploy" branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: deploy
+          force_orphan: true
+          commit_message: 'deploy: ${{ github.event.head_commit.message }}'
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
