@@ -104,7 +104,7 @@ export default function Hero() {
 
   return (
     <section className="hero" ref={heroRef} id="top">
-      <div className="bg" ref={bgRef} role="img" aria-label="Сучасний інтер'єр після ремонту KapiBud" />
+      <div className="bg" ref={bgRef} role="img" aria-label="Сучасний інтер'єр після ремонту PrimeBud" />
       <div className="scrim" aria-hidden="true" />
       <div className="hero-grid">
         <div className="hero-l">

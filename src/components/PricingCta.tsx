@@ -4,7 +4,7 @@ export default function PricingCta() {
   useScrollReveal('.pricing-cta .img');
   return (
     <section className="pricing-cta">
-      <div className="img" role="img" aria-label="Прайс-лист на ремонтні роботи KapiBud" />
+      <div className="img" role="img" aria-label="Прайс-лист на ремонтні роботи PrimeBud" />
       <div>
         <span className="tag">прайс-лист</span>
         <h2>Прозорі ціни на ремонт у Києві та Київській області</h2>

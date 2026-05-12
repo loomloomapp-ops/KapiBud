@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { IconPhone, IconClose } from './Icons';
 
 const Logo = () => (
-  <a href="#top" className="logo" aria-label="KapiBud — на головну">
-    <div className="mark" role="img" aria-label="Логотип KapiBud" />
+  <a href="#top" className="logo" aria-label="PrimeBud — на головну">
+    <div className="mark" role="img" aria-label="Логотип PrimeBud" />
   </a>
 );
 

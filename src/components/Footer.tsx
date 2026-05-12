@@ -29,7 +29,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer-bot">
-        <span>©KapiBud {new Date().getFullYear()}</span>
+        <span>©PrimeBud {new Date().getFullYear()}</span>
         <a href="#">Privacy &amp; Policy</a>
       </div>
     </footer>
