@@ -5,10 +5,8 @@ import type { SVGProps } from 'react';
 type P = SVGProps<SVGSVGElement>;
 
 export const IconHex = (p: P) => (
-  <svg width={32} height={32} viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" {...p}>
-    <polygon points="16,4 27,10 27,22 16,28 5,22 5,10" />
-    <polygon points="16,9 23,12.5 23,19.5 16,23 9,19.5 9,12.5" />
-    <polygon points="16,13 20,15 20,19 16,21 12,19 12,15" />
+  <svg width={40} height={40} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" {...p}>
+    <path d="M19.8586 36.0067C19.7964 36.0067 19.7342 35.9915 19.6778 35.9612L5.56106 28.3864C5.43689 28.3198 5.35938 28.1903 5.35938 28.0493V12.2111C5.35938 12.0701 5.43689 11.9406 5.56106 11.874L19.6778 4.29917C19.7907 4.23857 19.9265 4.23857 20.0396 4.29917L34.1562 11.874C34.2804 11.9406 34.3579 12.0701 34.3579 12.2111V28.0493C34.3579 28.1903 34.2804 28.3198 34.1562 28.3864L20.0396 35.9612C19.983 35.9915 19.9208 36.0067 19.8586 36.0067ZM6.12451 27.8205L19.8586 35.1899L33.5927 27.8205V26.2786L20.0395 33.5512C19.9264 33.6116 19.7907 33.6116 19.6776 33.5512L6.12451 26.2785V27.8205ZM6.12451 25.4103L19.8586 32.7797L33.5927 25.4103V24.835L32.0502 24.0074L20.0395 30.4523C19.9264 30.5129 19.7907 30.5128 19.6776 30.4522L7.66707 24.0074L6.12451 24.835V25.4103ZM8.47624 23.5732L19.8586 29.681L31.2411 23.5732L29.163 22.4582L20.0396 27.3535C19.9265 27.414 19.7907 27.4141 19.6778 27.3534L10.5546 22.4579L8.47624 23.5732ZM11.3638 22.0238L19.8586 26.5821L28.3538 22.024L26.2756 20.9089L20.0395 24.2547C19.9264 24.3153 19.7907 24.3152 19.6776 24.2547L13.4419 20.9086L11.3638 22.0238ZM33.5927 23.9668V21.7363L19.8586 14.3668L6.12451 21.7363V23.9667L19.6778 16.6943C19.7907 16.6337 19.9265 16.6337 20.0396 16.6943L33.5927 23.9668ZM14.2511 20.4745L19.8586 23.4834L25.4664 20.4747L19.8586 17.4656L14.2511 20.4745ZM19.8586 13.5501C19.9208 13.5501 19.983 13.5652 20.0395 13.5955L33.5927 20.868V18.6376L19.8586 11.268L6.12451 18.6375V20.8679L19.6778 13.5955C19.7342 13.5652 19.7964 13.5501 19.8586 13.5501ZM19.8586 10.4513C19.9208 10.4513 19.983 10.4664 20.0395 10.4968L33.5927 17.7692V15.5388L19.8586 8.16923L6.12451 15.5388V17.7692L19.6778 10.4968C19.7342 10.4664 19.7964 10.4513 19.8586 10.4513ZM19.8586 7.35248C19.9208 7.35248 19.983 7.36765 20.0395 7.39792L33.5927 14.6705V12.44L19.8586 5.07042L6.12451 12.4399V14.6703L19.6778 7.39792C19.7342 7.36765 19.7964 7.35248 19.8586 7.35248Z" fill="currentColor" />
   </svg>
 );
 
@@ -96,6 +94,44 @@ export const IconLayout = (p: P) => (
 export const IconEdit = (p: P) => (
   <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" {...p}>
     <path d="M15 4l3 3-9 9-4 1 1-4z" />
+  </svg>
+);
+export const IconApartment = (p: P) => (
+  <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" {...p}>
+    <rect x="4" y="3" width="14" height="16" rx="1" />
+    <path d="M7 6h2M13 6h2M7 10h2M13 10h2M7 14h2M13 14h2" />
+    <path d="M9 19v-2h4v2" />
+  </svg>
+);
+export const IconShop = (p: P) => (
+  <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" {...p}>
+    <path d="M4 8l1-3h12l1 3" />
+    <path d="M4 8v10h14V8" />
+    <path d="M4 8c0 1.5 1 2.5 2.5 2.5S9 9.5 9 8c0 1.5 1 2.5 2.5 2.5S14 9.5 14 8c0 1.5 1 2.5 2.5 2.5S19 9.5 19 8" />
+    <path d="M9 18v-5h4v5" />
+  </svg>
+);
+export const IconBlueprint = (p: P) => (
+  <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" {...p}>
+    <path d="M6 3h8l4 4v12H6z" />
+    <path d="M14 3v4h4" />
+    <path d="M9 11h6M9 14h6M9 17h4" />
+  </svg>
+);
+export const IconQuestion = (p: P) => (
+  <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" {...p}>
+    <circle cx="11" cy="11" r="8" />
+    <path d="M8.5 8.5a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5" />
+    <circle cx="11" cy="15.5" r=".6" fill="currentColor" stroke="none" />
+  </svg>
+);
+export const IconPalette = (p: P) => (
+  <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" {...p}>
+    <path d="M11 3a8 8 0 0 0 0 16c1.2 0 1.5-.9 1.5-1.7 0-.5-.4-.9-.4-1.4 0-.8.6-1.4 1.4-1.4H15a4 4 0 0 0 4-4c0-4-3.6-7.5-8-7.5z" />
+    <circle cx="6.5" cy="10" r="1" fill="currentColor" stroke="none" />
+    <circle cx="9" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    <circle cx="13" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    <circle cx="15.5" cy="10" r="1" fill="currentColor" stroke="none" />
   </svg>
 );
 export const IconChat = (p: P) => (

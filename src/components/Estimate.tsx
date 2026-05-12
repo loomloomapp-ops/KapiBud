@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { IconHome, IconLayout, IconEdit, IconChat } from './Icons';
+import { IconHome, IconApartment, IconShop, IconBlueprint, IconQuestion, IconPalette } from './Icons';
 import { sendLead } from '../lib/lead';
 
 const STEP1 = [
-  { id: 'apartment', t: 'Квартира', d: 'Первинне або вторинне житло', Ico: IconHome },
-  { id: 'house',     t: 'Будинок',  d: 'Заміський або котедж', Ico: IconLayout },
-  { id: 'commerce',  t: 'Комерційне приміщення', d: 'Офіс, магазин, заклад', Ico: IconEdit },
+  { id: 'apartment', t: 'Квартира', d: 'Первинне або вторинне житло', Ico: IconApartment },
+  { id: 'house',     t: 'Будинок',  d: 'Заміський або котедж', Ico: IconHome },
+  { id: 'commerce',  t: 'Комерційне приміщення', d: 'Офіс, магазин, заклад', Ico: IconShop },
 ];
 
 const STEP2 = [
-  { id: 'have',     t: 'Так, є готовий проєкт', d: 'Беремо проєкт та реалізуємо', Ico: IconLayout },
-  { id: 'no',       t: 'Ще немає',               d: 'Потрібна консультація та планування', Ico: IconEdit },
-  { id: 'need',     t: 'Потрібна допомога з дизайном', d: 'Створимо дизайн-проєкт та візьмемо процес на себе', Ico: IconChat },
+  { id: 'have',     t: 'Так, є готовий проєкт', d: 'Беремо проєкт та реалізуємо', Ico: IconBlueprint },
+  { id: 'no',       t: 'Ще немає',               d: 'Потрібна консультація та планування', Ico: IconQuestion },
+  { id: 'need',     t: 'Потрібна допомога з дизайном', d: 'Створимо дизайн-проєкт та візьмемо процес на себе', Ico: IconPalette },
 ];
 
 export default function Estimate() {

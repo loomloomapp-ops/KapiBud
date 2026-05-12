@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useScrollReveal } from '../anim/useScrollReveal';
+import { sendLead } from '../lib/lead';
+import { IconClose } from './Icons';
 
 const SERVICES = [
   {
@@ -26,8 +29,42 @@ const SERVICES = [
 
 type Props = { onEstimateClick: () => void; onCasesClick: () => void };
 
-export default function Services({ onEstimateClick, onCasesClick }: Props) {
+export default function Services({ onEstimateClick }: Props) {
   useScrollReveal('.services .svc-card', { stagger: 0.1 });
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [comment, setComment] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
+
+  useEffect(() => {
+    if (!openFor) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+  }, [openFor]);
+
+  function close() {
+    setOpenFor(null);
+    setStatus('idle');
+    setName(''); setPhone(''); setComment('');
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === 'sending') return;
+    if (!name.trim() || !phone.trim()) return;
+    setStatus('sending');
+    const r = await sendLead({
+      source: 'services-popup',
+      name, phone,
+      message: comment,
+      service: openFor || undefined,
+    });
+    setStatus(r.ok ? 'ok' : 'err');
+  }
 
   return (
     <section className="services" id="prices">
@@ -61,10 +98,39 @@ export default function Services({ onEstimateClick, onCasesClick }: Props) {
               <div className="val">{s.materials}</div>
             </div>
             <div className="price">{s.price}</div>
-            <button className="btn btn-dark" onClick={onCasesClick}>Переглянути Кейси</button>
+            <button className="btn btn-dark" onClick={() => setOpenFor(s.name)}>Залишити заявку</button>
           </div>
         ))}
       </div>
+
+      {openFor && (
+        <div className="modal-overlay" onClick={close}>
+          <div className="lead-popup" onClick={(e) => e.stopPropagation()}>
+            <button className="x" type="button" onClick={close} aria-label="Закрити"><IconClose /></button>
+            <h3>Залишити заявку</h3>
+            <p className="sub">Тариф: <b>{openFor}</b>. Залиште контакти — ми зателефонуємо й уточнимо деталі.</p>
+            <form onSubmit={submit} className="lead-form">
+              <div className="hf-field">
+                <label>Ім'я*</label>
+                <div className="ctl"><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ваше ім'я" required /></div>
+              </div>
+              <div className="hf-field">
+                <label>Номер телефону*</label>
+                <div className="ctl"><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" type="tel" required /></div>
+              </div>
+              <div className="hf-field">
+                <label>Додатковий коментар</label>
+                <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Коротко опишіть ваш об'єкт" />
+              </div>
+              {status === 'ok' && <div className="hf-success">Дякуємо! Менеджер передзвонить найближчим часом.</div>}
+              {status === 'err' && <div className="hf-error">Помилка відправки. Спробуйте ще раз.</div>}
+              <button className="hf-submit" type="submit" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Відправляємо…' : 'Залишити заявку'} <span className="arr" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -64,7 +64,7 @@ export default function Hero() {
       <div className="bg" ref={bgRef} />
       <div className="scrim" />
       <div className="hero-grid">
-        <div>
+        <div className="hero-l">
           <h1>Ремонт, який не зламає вам нерви</h1>
           <p className="lede">
             Просто залиште заявку — і ми повністю візьмемо ремонт на себе: від планування та підбору матеріалів до здачі готового простору в Києві та області без зайвих витрат і затримок
