@@ -32,3 +32,9 @@ _legacy/
 # PHP/Telegram secrets
 public/api/lead.config.php
 public/api/leads.log
+
+# Admin secrets (хеш пароля)
+public/api/admin/admin.config.php
+
+# Завантажені медіа адмінки (стартові кейси у public/cases/ лишаються)
+public/uploads/

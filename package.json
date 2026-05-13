@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:php": "php -S 127.0.0.1:8081 -t public",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

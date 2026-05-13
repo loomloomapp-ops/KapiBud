@@ -2,7 +2,7 @@
 // На локалці без бекенду — лог + симуляція успіху.
 
 export type LeadPayload = {
-  source: 'hero-form' | 'quiz' | 'cta' | 'services-popup';
+  source: 'hero-form' | 'quiz' | 'cta' | 'services-popup' | 'floating-widget';
   name?: string;
   phone?: string;
   contactChannel?: string;
