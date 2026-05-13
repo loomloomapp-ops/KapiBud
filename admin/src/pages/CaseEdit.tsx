@@ -35,6 +35,7 @@ export default function CaseEdit() {
   const [saving, setSaving] = useState(false);
   const [delMedia, setDelMedia] = useState<{ kind: 'photo' | 'video'; name: string } | null>(null);
   const [drag, setDrag] = useState(false);
+  const [bust, setBust] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(original);
@@ -138,10 +139,9 @@ export default function CaseEdit() {
     setDelMedia(null);
   }
 
+  // Cache-buster для img/video src — оновлюється після reloadMedia(),
+  // щоб новозалиті файли не натикались на 404, який кешує браузер.
   const baseUrl = `/cases/${slug}`;
-  // Cache-buster: оновлюється після кожного reloadMedia, щоб новозалиті
-  // файли не натикались на 404 у кеші браузера.
-  const [bust, setBust] = useState(0);
 
   return (
     <>
