@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IconHome, IconApartment, IconShop, IconBlueprint, IconQuestion, IconPalette } from './Icons';
 import { sendLead } from '../lib/lead';
+import { formatPhone } from '../lib/phoneMask';
 
 const STEP1 = [
   { id: 'apartment', t: 'Квартира', d: 'Первинне або вторинне житло', Ico: IconApartment },
@@ -104,7 +105,7 @@ export default function Estimate() {
               </div>
               <div className="field">
                 <label>Телефон*</label>
-                <div className="ctl"><input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" /></div>
+                <div className="ctl"><input type="tel" inputMode="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={() => { if (!phone) setPhone('+38 (0'); }} placeholder="+38 (0__) ___ __ __" /></div>
               </div>
             </div>
             <div className="field">

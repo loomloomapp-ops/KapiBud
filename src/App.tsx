@@ -15,6 +15,7 @@ import Partners from './components/Partners';
 import Footer from './components/Footer';
 import MobileDock from './components/MobileDock';
 import Preloader from './components/Preloader';
+import FloatingWidgets from './components/FloatingWidgets';
 import type { CaseItem } from './data/cases';
 import { initSmoothScroll, smoothScrollTo } from './anim/smoothScroll';
 
@@ -68,6 +69,7 @@ export default function App() {
         <Footer />
         <MobileDock />
         <CaseModal item={openCase} onClose={() => setOpenCase(null)} onEstimate={scrollToEstimate} />
+        <FloatingWidgets />
       </div>
     </>
   );

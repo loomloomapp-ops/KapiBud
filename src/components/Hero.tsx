@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { gsap } from '../anim/useScrollReveal';
 import { IconHex, IconUser, IconCallSmall } from './Icons';
 import { sendLead } from '../lib/lead';
+import { formatPhone } from '../lib/phoneMask';
 
 const CHANNELS = [
   'Зателефонуйте мені',
@@ -108,7 +109,7 @@ export default function Hero() {
       <div className="scrim" aria-hidden="true" />
       <div className="hero-grid">
         <div className="hero-l">
-          <h1>Ремонт, який не зламає вам нерви</h1>
+          <h1 className="h1-claim">Преміальний ремонт під ключ у Києві та області — від ідеї до здачі без зайвого клопоту</h1>
           <p className="lede">
             Просто залиште заявку — і ми повністю візьмемо ремонт на себе: від планування та підбору матеріалів до здачі готового простору в Києві та області без зайвих витрат і затримок
           </p>
@@ -125,7 +126,7 @@ export default function Hero() {
 
         {/* Десктоп / планшет — повна форма */}
         <form className="hero-form" onSubmit={onSubmit}>
-          <h3>Отримайте безкоштовну консультацію</h3>
+          <h3>Отримати безкоштовний повний прорахунок</h3>
           <p className="sub">Залиште заявку — ми зв'яжемося з вами, уточнимо деталі та підготуємо попередній розрахунок вартості ремонту</p>
           <div className="hf-row">
             <div className="hf-field">
@@ -139,7 +140,7 @@ export default function Hero() {
               <label>Номер телефону*</label>
               <div className="ctl">
                 <IconCallSmall />
-                <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" type="tel" required />
+                <input value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={() => { if (!phone) setPhone('+38 (0'); }} placeholder="+38 (0__) ___ __ __" type="tel" inputMode="tel" required />
               </div>
             </div>
           </div>
@@ -210,7 +211,7 @@ export default function Hero() {
               </div>
               <div className="hqm-field">
                 <IconCallSmall />
-                <input value={mPhone} onChange={(e) => setMPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" type="tel" required />
+                <input value={mPhone} onChange={(e) => setMPhone(formatPhone(e.target.value))} onFocus={() => { if (!mPhone) setMPhone('+38 (0'); }} placeholder="+38 (0__) ___ __ __" type="tel" inputMode="tel" required />
               </div>
               {mStatus === 'ok' && <div className="hf-success">Дякуємо! Ми зателефонуємо вам найближчим часом.</div>}
               {mStatus === 'err' && <div className="hf-error">Помилка відправки. Спробуйте ще раз.</div>}

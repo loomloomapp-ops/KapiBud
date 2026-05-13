@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useScrollReveal } from '../anim/useScrollReveal';
 import { sendLead } from '../lib/lead';
+import { formatPhone } from '../lib/phoneMask';
 import { IconClose } from './Icons';
 import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
 
@@ -31,7 +32,7 @@ const SERVICES = [
 type Props = { onEstimateClick: () => void; onCasesClick: () => void };
 
 export default function Services({ onEstimateClick }: Props) {
-  useScrollReveal('.services .svc-card', { stagger: 0.1 });
+  useScrollReveal('.services .svc-card', { stagger: 0.1, y: 0 });
   const [openFor, setOpenFor] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -122,7 +123,7 @@ export default function Services({ onEstimateClick }: Props) {
               </div>
               <div className="hf-field">
                 <label>Номер телефону*</label>
-                <div className="ctl"><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" type="tel" required /></div>
+                <div className="ctl"><input value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={() => { if (!phone) setPhone('+38 (0'); }} placeholder="+38 (0__) ___ __ __" type="tel" inputMode="tel" required /></div>
               </div>
               <div className="hf-field">
                 <label>Додатковий коментар</label>

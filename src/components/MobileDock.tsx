@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconClose, IconUser, IconCallSmall } from './Icons';
 import { sendLead } from '../lib/lead';
+import { formatPhone } from '../lib/phoneMask';
 import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
 
 export default function MobileDock() {
@@ -86,7 +87,7 @@ export default function MobileDock() {
                 <label>Номер телефону*</label>
                 <div className="ctl">
                   <IconCallSmall />
-                  <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+38 (0__) ___ __ __" type="tel" required />
+                  <input value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={() => { if (!phone) setPhone('+38 (0'); }} placeholder="+38 (0__) ___ __ __" type="tel" inputMode="tel" required />
                 </div>
               </div>
               <div className="hf-field">
