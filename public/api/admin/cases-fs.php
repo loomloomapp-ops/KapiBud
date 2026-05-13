@@ -5,6 +5,24 @@ if (!is_dir(CASES_DIR)) @mkdir(CASES_DIR, 0775, true);
 
 $action = $_GET['action'] ?? '';
 
+// Допоміжне: оновити запис кейсу у public/data/cases.json
+// $mutator(&$case) — отримує посилання на елемент і змінює його (photos/videos).
+function update_case_in_json(string $slug, callable $mutator): void {
+    $file = DATA_DIR . '/cases.json';
+    $data = load_json($file);
+    if (!is_array($data)) return;
+    $changed = false;
+    foreach ($data as &$c) {
+        if (($c['slug'] ?? '') === $slug) {
+            $mutator($c);
+            $changed = true;
+            break;
+        }
+    }
+    unset($c);
+    if ($changed) save_json($file, $data);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && $action === 'list-media') {
     require_auth();
     $slug = safe_slug((string)($_GET['slug'] ?? ''));
@@ -63,6 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
     @chmod($dest, 0664);
     clearstatcache(true, $dest);
 
+    // Синхронізуємо cases.json — додаємо filename у photos[] або videos[]
+    update_case_in_json($slug, function (&$c) use ($name, $is_image) {
+        $field = $is_image ? 'photos' : 'videos';
+        if (!isset($c[$field]) || !is_array($c[$field])) $c[$field] = [];
+        if (!in_array($name, $c[$field], true)) $c[$field][] = $name;
+    });
+
     ok([
         'name' => $name,
         'url'  => '/cases/' . $slug . '/' . $name,
@@ -81,6 +106,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'delete-media') {
     if (!file_exists($abs)) fail(404, 'Файл не знайдено');
     if (!path_inside(CASES_DIR, $abs)) fail(403, 'Шлях поза cases/');
     if (!@unlink($abs)) fail(500, 'Не вдалося видалити');
+
+    // Видаляємо запис із cases.json у обох масивах (не знаючи типу)
+    update_case_in_json($slug, function (&$c) use ($name) {
+        foreach (['photos', 'videos'] as $field) {
+            if (isset($c[$field]) && is_array($c[$field])) {
+                $c[$field] = array_values(array_filter($c[$field], fn($x) => $x !== $name));
+            }
+        }
+    });
+
     ok();
 }
 

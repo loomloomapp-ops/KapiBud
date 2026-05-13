@@ -42,10 +42,25 @@ export default function CaseEdit() {
   useUnsavedGuard(dirty);
 
   const reloadMedia = useCallback(async () => {
-    const m = await tryDo(() => api.caseListMedia(slug));
+    // Тягнемо і список файлів (FS), і оновлений cases.json — щоб
+    // photos/videos у draft/original збігались (інакше dirty-стан зʼявиться).
+    const [m, cRes] = await Promise.all([
+      tryDo(() => api.caseListMedia(slug)),
+      tryDo(() => api.get('cases')),
+    ]);
     if (m) {
       setMedia({ photos: m.photos || [], videos: m.videos || [] });
       setBust(Date.now());
+    }
+    if (cRes) {
+      const cases = (cRes.data || []) as CaseItem[];
+      const c = cases.find((x) => x.slug === slug);
+      setAllCases(cases);
+      if (c) {
+        // Зберігаємо локальні зміни metadata у draft, а photos/videos — як на сервері
+        setOrig((prev) => prev ? { ...prev, photos: c.photos, videos: c.videos } : c);
+        setDraft((prev) => prev ? { ...prev, photos: c.photos, videos: c.videos } : c);
+      }
     }
   }, [slug, tryDo]);
 
@@ -56,12 +71,32 @@ export default function CaseEdit() {
       try {
         const [cRes, mRes] = await Promise.all([api.get('cases'), api.caseListMedia(slug)]);
         if (!alive) return;
-        const cases = (cRes.data || []) as CaseItem[];
+        let cases = (cRes.data || []) as CaseItem[];
+        const fsPhotos: string[] = mRes.photos || [];
+        const fsVideos: string[] = mRes.videos || [];
+        let c = cases.find((x) => x.slug === slug) || null;
+
+        // Авто-синк: якщо на диску є файли, яких немає у JSON — тихо додаємо.
+        if (c) {
+          const jsonPhotos = new Set(c.photos || []);
+          const jsonVideos = new Set(c.videos || []);
+          const missing =
+            fsPhotos.some((n) => !jsonPhotos.has(n)) ||
+            fsVideos.some((n) => !jsonVideos.has(n)) ||
+            (c.photos || []).some((n) => !fsPhotos.includes(n)) ||
+            (c.videos || []).some((n) => !fsVideos.includes(n));
+          if (missing) {
+            const updated = { ...c, photos: fsPhotos, videos: fsVideos };
+            cases = cases.map((x) => x.slug === slug ? updated : x);
+            await api.save('cases', cases).catch(() => {});
+            c = updated;
+          }
+        }
+
         setAllCases(cases);
-        const c = cases.find((x) => x.slug === slug) || null;
         setOrig(c);
         setDraft(c ? structuredClone(c) : null);
-        setMedia({ photos: mRes.photos || [], videos: mRes.videos || [] });
+        setMedia({ photos: fsPhotos, videos: fsVideos });
       } catch (e: any) {
         t.err(e?.message || 'Помилка завантаження');
       } finally {
@@ -131,10 +166,7 @@ export default function CaseEdit() {
     const r = await tryDo(() => api.caseDeleteMedia(slug, delMedia.name));
     if (r) {
       t.ok('Видалено');
-      setMedia((m) => ({
-        photos: delMedia.kind === 'photo' ? m.photos.filter((n) => n !== delMedia.name) : m.photos,
-        videos: delMedia.kind === 'video' ? m.videos.filter((n) => n !== delMedia.name) : m.videos,
-      }));
+      await reloadMedia();
     }
     setDelMedia(null);
   }
@@ -229,7 +261,12 @@ export default function CaseEdit() {
           <div className="media-grid">
             {media.photos.map((n) => (
               <div className="media-tile" key={`p:${n}`}>
-                <img src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`} alt={n} loading="lazy" />
+                <img
+                  key={`p:${n}:${bust}`}
+                  src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`}
+                  alt={n}
+                  loading="lazy"
+                />
                 <span className="badge">фото</span>
                 <button className="del" title="Видалити" onClick={() => setDelMedia({ kind: 'photo', name: n })}>
                   <IcTrash size={12} />
@@ -238,7 +275,12 @@ export default function CaseEdit() {
             ))}
             {media.videos.map((n) => (
               <div className="media-tile" key={`v:${n}`}>
-                <video src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`} muted preload="metadata" />
+                <video
+                  key={`v:${n}:${bust}`}
+                  src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`}
+                  muted
+                  preload="metadata"
+                />
                 <span className="badge">відео</span>
                 <button className="del" title="Видалити" onClick={() => setDelMedia({ kind: 'video', name: n })}>
                   <IcTrash size={12} />
