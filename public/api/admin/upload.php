@@ -22,21 +22,35 @@ if ($f['error'] !== UPLOAD_ERR_OK) fail(400, 'Помилка завантаже�
 
 $orig = $f['name'];
 $ext  = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
-$ALLOWED_IMG = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+$ALLOWED_IMG = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
 $ALLOWED_VID = ['mp4', 'mov', 'webm'];
 
 $is_image = in_array($ext, $ALLOWED_IMG, true);
 $is_video = in_array($ext, $ALLOWED_VID, true);
+$is_svg   = $ext === 'svg';
 if (!$is_image && !$is_video) fail(415, 'Розширення не дозволено: .' . $ext);
 
 if ($is_image && $f['size'] > $MAX_IMG) fail(413, 'Зображення більше дозволеного (' . round($MAX_IMG/1024/1024) . ' MB)');
 if ($is_video && $f['size'] > $MAX_VID) fail(413, 'Відео більше дозволеного (' . round($MAX_VID/1024/1024) . ' MB)');
 
-// MIME перевірка
+// MIME перевірка. SVG — окремо (текстовий формат, finfo часто визначає як text/xml або image/svg+xml).
 $finfo = new finfo(FILEINFO_MIME_TYPE);
-$mime = $finfo->file($f['tmp_name']);
-$mime_ok = ($is_image && str_starts_with((string)$mime, 'image/'))
-        || ($is_video && str_starts_with((string)$mime, 'video/'));
+$mime = (string)$finfo->file($f['tmp_name']);
+if ($is_svg) {
+    $mime_ok = in_array($mime, ['image/svg+xml', 'image/svg', 'text/xml', 'application/xml', 'text/plain', 'text/html'], true);
+    if ($mime_ok) {
+        // Захист від JS у SVG: відхиляємо <script>, on*-handlers, javascript:
+        $head = (string)file_get_contents($f['tmp_name'], false, null, 0, 16384);
+        if (stripos($head, '<script') !== false
+            || preg_match('~\son\w+\s*=~i', $head)
+            || stripos($head, 'javascript:') !== false) {
+            fail(415, 'SVG містить скрипти — відхилено');
+        }
+    }
+} else {
+    $mime_ok = ($is_image && str_starts_with($mime, 'image/'))
+            || ($is_video && str_starts_with($mime, 'video/'));
+}
 if (!$mime_ok) fail(415, 'MIME не відповідає розширенню');
 
 $base = pathinfo($orig, PATHINFO_FILENAME);

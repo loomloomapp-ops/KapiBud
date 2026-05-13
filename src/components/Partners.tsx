@@ -1,7 +1,7 @@
 import { useScrollReveal } from '../anim/useScrollReveal';
 import { useContent } from '../lib/content';
 
-type Partner = { cls: string; label: string; cap: string };
+type Partner = { cls: string; label: string; cap: string; logo?: string };
 
 const PARTNERS_FALLBACK: Partner[] = [
   { cls: 'AGROMAT',   label: 'АГРОМАТ',  cap: 'доступ до надійних постачальників і виробників' },
@@ -28,7 +28,13 @@ export default function Partners() {
         <div className="partner-track">
           {TRACK.map((p, i) => (
             <div className="partner-card" key={`${p.label}-${i}`}>
-              <div className={`lg ${p.cls}`}>{p.label}</div>
+              {p.logo ? (
+                <div className="lg lg-img">
+                  <img src={p.logo} alt={p.label} loading="lazy" />
+                </div>
+              ) : (
+                <div className={`lg ${p.cls}`}>{p.label}</div>
+              )}
               <div className="cap">{p.cap}</div>
             </div>
           ))}

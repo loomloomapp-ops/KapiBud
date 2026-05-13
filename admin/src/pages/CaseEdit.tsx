@@ -42,7 +42,10 @@ export default function CaseEdit() {
 
   const reloadMedia = useCallback(async () => {
     const m = await tryDo(() => api.caseListMedia(slug));
-    if (m) setMedia({ photos: m.photos || [], videos: m.videos || [] });
+    if (m) {
+      setMedia({ photos: m.photos || [], videos: m.videos || [] });
+      setBust(Date.now());
+    }
   }, [slug, tryDo]);
 
   useEffect(() => {
@@ -136,6 +139,9 @@ export default function CaseEdit() {
   }
 
   const baseUrl = `/cases/${slug}`;
+  // Cache-buster: оновлюється після кожного reloadMedia, щоб новозалиті
+  // файли не натикались на 404 у кеші браузера.
+  const [bust, setBust] = useState(0);
 
   return (
     <>
@@ -223,7 +229,7 @@ export default function CaseEdit() {
           <div className="media-grid">
             {media.photos.map((n) => (
               <div className="media-tile" key={`p:${n}`}>
-                <img src={`${baseUrl}/${n}`} alt={n} loading="lazy" />
+                <img src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`} alt={n} loading="lazy" />
                 <span className="badge">фото</span>
                 <button className="del" title="Видалити" onClick={() => setDelMedia({ kind: 'photo', name: n })}>
                   <IcTrash size={12} />
@@ -232,7 +238,7 @@ export default function CaseEdit() {
             ))}
             {media.videos.map((n) => (
               <div className="media-tile" key={`v:${n}`}>
-                <video src={`${baseUrl}/${n}`} muted preload="metadata" />
+                <video src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`} muted preload="metadata" />
                 <span className="badge">відео</span>
                 <button className="del" title="Видалити" onClick={() => setDelMedia({ kind: 'video', name: n })}>
                   <IcTrash size={12} />
