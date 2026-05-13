@@ -1,6 +1,16 @@
 import { useScrollReveal } from '../anim/useScrollReveal';
+import { useContent } from '../lib/content';
 
-const PLANS = [
+type Plan = {
+  name: string;
+  price: string;
+  items: string[];
+  term: string;
+  termSub?: string;
+  ph: string;
+};
+
+const PLANS_FALLBACK: Plan[] = [
   {
     name: 'Технічний дизайн-проєкт',
     price: '880 грн/м²',
@@ -71,6 +81,7 @@ const PLANS = [
 ];
 
 export default function Plans() {
+  const PLANS = useContent<Plan[]>('plans', PLANS_FALLBACK).slice(0, 3);
   useScrollReveal('.plan', { stagger: 0.1 });
   return (
     <section className="plans">

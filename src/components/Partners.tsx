@@ -1,6 +1,9 @@
 import { useScrollReveal } from '../anim/useScrollReveal';
+import { useContent } from '../lib/content';
 
-const PARTNERS = [
+type Partner = { cls: string; label: string; cap: string };
+
+const PARTNERS_FALLBACK: Partner[] = [
   { cls: 'AGROMAT',   label: 'АГРОМАТ',  cap: 'доступ до надійних постачальників і виробників' },
   { cls: 'REHAU',     label: 'REHAU',     cap: 'вигідніші ціни та спеціальні умови' },
   { cls: 'TECE',      label: 'TECE',      cap: 'гарантована якість матеріалів і рішень' },
@@ -11,10 +14,9 @@ const PARTNERS = [
   { cls: 'EPICENTRE', label: 'Епіцентр', cap: 'економію вашого часу та ресурсів' },
 ];
 
-// Дублюємо набір, щоб marquee був безшовний (animation translateX -50%).
-const TRACK = [...PARTNERS, ...PARTNERS];
-
 export default function Partners() {
+  const PARTNERS = useContent<Partner[]>('partners', PARTNERS_FALLBACK);
+  const TRACK = [...PARTNERS, ...PARTNERS];
   useScrollReveal('.partner-card', { stagger: 0.05 });
   return (
     <section className="partners" id="partners">

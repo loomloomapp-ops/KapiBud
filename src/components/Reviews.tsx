@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { IconChevron, IconChevronLeft } from './Icons';
 import { useScrollReveal } from '../anim/useScrollReveal';
 import { useSlider } from '../anim/useSlider';
+import { useContent } from '../lib/content';
 
-const REVIEWS = [
+type Review = { nm: string; when: string; av: string; text: string };
+
+const REVIEWS_FALLBACK: Review[] = [
   { nm: 'Іван Коваленко', when: '2 дні тому',    av: 'av-1', text: 'Дуже задоволений роботою. Все зробили в обумовлені терміни, без затримок і "сюрпризів" по бюджету. Команда реально знає свою справу' },
   { nm: 'Олена І.',       when: 'тиждень тому',   av: '#C8B89F', text: 'Команда відповідальна, чітко тримала строки. Дуже сподобалось, що менеджер тримав мене в курсі кожного етапу робіт' },
   { nm: 'Дмитро Зайцев',  when: '3 тижні тому',   av: '#B7A48A', text: 'Зробили ремонт квартири під оренду — все підрахували заздалегідь, обійшлось без додаткових витрат. Чесно і професійно' },
@@ -27,6 +30,7 @@ function useCols() {
 }
 
 export default function Reviews() {
+  const REVIEWS = useContent<Review[]>('reviews', REVIEWS_FALLBACK);
   const cols = useCols();
   const totalPages = Math.ceil(REVIEWS.length / cols);
   const { page, setPage, viewportRef, dragging, trackStyle, handlers } = useSlider(totalPages);
@@ -34,10 +38,10 @@ export default function Reviews() {
   useEffect(() => { if (page > totalPages - 1) setPage(0); }, [cols, page, totalPages, setPage]);
 
   const groups = useMemo(() => {
-    const arr: typeof REVIEWS[] = [];
+    const arr: Review[][] = [];
     for (let i = 0; i < REVIEWS.length; i += cols) arr.push(REVIEWS.slice(i, i + cols));
     return arr;
-  }, [cols]);
+  }, [cols, REVIEWS]);
 
   return (
     <section className="reviews" id="reviews">

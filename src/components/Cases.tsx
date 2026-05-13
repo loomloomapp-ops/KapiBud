@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { cases, type CaseItem } from '../data/cases';
+import { CASES_FALLBACK, type CaseItem } from '../data/cases';
 import { IconZoom, IconChevronLeft, IconChevron } from './Icons';
 import { useScrollReveal } from '../anim/useScrollReveal';
 import { useSlider } from '../anim/useSlider';
+import { useContent } from '../lib/content';
 
 type Props = { onOpen: (c: CaseItem) => void };
 
@@ -21,20 +22,19 @@ function useColsPerPage() {
 }
 
 export default function Cases({ onOpen }: Props) {
+  const cases = useContent<CaseItem[]>('cases', CASES_FALLBACK);
   const perPage = useColsPerPage();
   const totalPages = Math.ceil(cases.length / perPage);
   const { page, setPage, viewportRef, dragging, trackStyle, handlers } = useSlider(totalPages);
 
   useEffect(() => { if (page > totalPages - 1) setPage(0); }, [perPage, page, totalPages, setPage]);
-  // Reveal лише першу сторінку — щоб не було «східцевих» offsets на інших слайдах.
-  // y:0 (тільки opacity), бо translateY клiпається оверфлоу-вьюпортом і обрізає низ карток.
   useScrollReveal('.case-page:first-child .case-card', { stagger: 0.08, y: 0, duration: 0.6 });
 
   const groups = useMemo(() => {
     const arr: CaseItem[][] = [];
     for (let i = 0; i < cases.length; i += perPage) arr.push(cases.slice(i, i + perPage));
     return arr;
-  }, [perPage]);
+  }, [perPage, cases]);
 
   return (
     <section className="cases" id="cases">

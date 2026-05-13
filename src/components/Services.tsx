@@ -4,8 +4,11 @@ import { sendLead } from '../lib/lead';
 import { formatPhone } from '../lib/phoneMask';
 import { IconClose } from './Icons';
 import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
+import { useContent } from '../lib/content';
 
-const SERVICES = [
+type Service = { name: string; desc: string; includes: string; materials: string; price: string };
+
+const SERVICES_FALLBACK: Service[] = [
   {
     name: 'Готово під здачу',
     desc: 'Швидке та практичне рішення для оренди',
@@ -32,6 +35,7 @@ const SERVICES = [
 type Props = { onEstimateClick: () => void; onCasesClick: () => void };
 
 export default function Services({ onEstimateClick }: Props) {
+  const SERVICES = useContent<Service[]>('services', SERVICES_FALLBACK).slice(0, 3);
   useScrollReveal('.services .svc-card', { stagger: 0.1, y: 0 });
   const [openFor, setOpenFor] = useState<string | null>(null);
   const [name, setName] = useState('');
