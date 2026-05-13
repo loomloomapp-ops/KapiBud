@@ -61,11 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $action === 'upload') {
     $dest = $dir . '/' . $name;
     if (!move_uploaded_file($f['tmp_name'], $dest)) fail(500, 'Не вдалося зберегти');
     @chmod($dest, 0664);
+    clearstatcache(true, $dest);
 
     ok([
         'name' => $name,
         'url'  => '/cases/' . $slug . '/' . $name,
         'type' => $is_image ? 'image' : 'video',
+        'size' => filesize($dest),
     ]);
 }
 
