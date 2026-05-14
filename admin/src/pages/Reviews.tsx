@@ -1,21 +1,27 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useContentEditor } from '../lib/useContent';
-import { useUnsavedGuard } from '../lib/toast';
+import { useToast, useTry, useUnsavedGuard } from '../lib/toast';
+import { api } from '../lib/api';
 import SaveBar from '../components/SaveBar';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { IcPlus, IcTrash, IcGrip } from '../components/icons';
+import { IcPlus, IcTrash, IcGrip, IcUpload, IcImage } from '../components/icons';
 
 type Review = { nm: string; when: string; av: string; text: string };
 const EMPTY: Review = { nm: '', when: '', av: '#C8B89F', text: '' };
 
 const AV_PALETTE = ['#C8B89F', '#B7A48A', '#A39177', '#8E7B5F', '#D9C8A8', '#9B815E'];
 
+const isImg = (v: string) => /^(\/|https?:\/\/|data:image\/)/.test(v);
+
 export default function ReviewsPage() {
   const { draft, setDraft, dirty, loading, saving, save, reset } =
     useContentEditor<Review[]>('reviews', []);
   useUnsavedGuard(dirty);
+  const t = useToast();
+  const tryDo = useTry();
   const [delIdx, setDelIdx] = useState<number | null>(null);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const fileRefs = useRef<Record<number, HTMLInputElement | null>>({});
   const list = draft || [];
 
   if (loading) return <div className="center-screen"><div className="spinner" /></div>;
@@ -32,6 +38,13 @@ export default function ReviewsPage() {
     arr.splice(to, 0, it);
     setDraft(arr);
   }
+  async function uploadAvatar(i: number, file: File) {
+    const r = await tryDo(() => api.upload('reviews', file));
+    if (r) {
+      update(i, { av: r.url });
+      t.ok('Аватар завантажено');
+    }
+  }
 
   return (
     <>
@@ -47,7 +60,9 @@ export default function ReviewsPage() {
         </div>
       </div>
 
-      {list.map((r, i) => (
+      {list.map((r, i) => {
+        const hasImg = isImg(r.av);
+        return (
         <div
           className="row-card"
           key={i}
@@ -75,34 +90,89 @@ export default function ReviewsPage() {
             <div className="field-label">Коли</div>
             <input className="input" value={r.when} onChange={(e) => update(i, { when: e.target.value })} placeholder="тиждень тому" />
           </div>
+
           <div className="field-row">
             <div className="field-label">
               Аватар
-              <span className="hint">HEX-колір кружечка (без фото)</span>
+              <span className="hint">Завантажте фото або задайте HEX-колір кружечка</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div className="avatar-swatch" style={{ background: r.av.startsWith('#') ? r.av : 'var(--c-hover)' }} />
-              <input className="input" value={r.av} onChange={(e) => update(i, { av: e.target.value })} style={{ width: 140 }} />
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                {AV_PALETTE.map((c) => (
-                  <button key={c}
-                    title={c}
-                    onClick={() => update(i, { av: c })}
-                    style={{
-                      width: 24, height: 24, borderRadius: '50%',
-                      background: c, border: '1px solid var(--c-border)', cursor: 'pointer',
-                    }}
-                  />
-                ))}
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              {hasImg ? (
+                <div
+                  className="img-preview"
+                  style={{ width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', flexShrink: 0 }}
+                >
+                  <img src={r.av} alt={r.nm} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : (
+                <div
+                  className="avatar-swatch"
+                  style={{
+                    width: 72, height: 72, borderRadius: '50%', flexShrink: 0,
+                    background: r.av.startsWith('#') ? r.av : 'var(--c-hover)',
+                    display: 'grid', placeItems: 'center', color: 'var(--c-muted)',
+                  }}
+                >
+                  {!r.av.startsWith('#') && <IcImage size={22} />}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                <input
+                  ref={(el) => { fileRefs.current[i] = el; }}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml,.svg"
+                  style={{ display: 'none' }}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) uploadAvatar(i, f);
+                    e.target.value = '';
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  <button className="btn btn-ghost btn-sm" onClick={() => fileRefs.current[i]?.click()}>
+                    <IcUpload size={14} /> {hasImg ? 'Замінити фото' : 'Завантажити фото'}
+                  </button>
+                  {hasImg && (
+                    <button className="btn btn-ghost btn-sm" onClick={() => update(i, { av: '#C8B89F' })}>
+                      Прибрати фото
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  className="input"
+                  value={r.av}
+                  onChange={(e) => update(i, { av: e.target.value })}
+                  placeholder="#C8B89F або /uploads/reviews/..."
+                  style={{ fontSize: 12 }}
+                />
+
+                {!hasImg && (
+                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                    {AV_PALETTE.map((c) => (
+                      <button key={c}
+                        title={c}
+                        onClick={() => update(i, { av: c })}
+                        style={{
+                          width: 22, height: 22, borderRadius: '50%',
+                          background: c, border: '1px solid var(--c-border)', cursor: 'pointer',
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
+
           <div className="field-row">
             <div className="field-label">Текст відгуку</div>
             <textarea className="textarea" value={r.text} onChange={(e) => update(i, { text: e.target.value })} rows={3} />
           </div>
         </div>
-      ))}
+        );
+      })}
 
       {list.length === 0 && (
         <div className="card" style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--c-muted)' }}>

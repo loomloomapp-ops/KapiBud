@@ -65,12 +65,25 @@ export default function Reviews() {
                 {group.map((r) => (
                   <div className="r-card" key={r.nm + r.when}>
                     <div className="hd">
-                      <div
-                        className={`av ${r.av.startsWith('#') ? '' : r.av}`}
-                        role="img"
-                        aria-label={`Аватар ${r.nm}`}
-                        style={r.av.startsWith('#') ? { background: r.av } : undefined}
-                      />
+                      {/^(\/|https?:\/\/|data:image\/)/.test(r.av) ? (
+                        <div
+                          className="av"
+                          role="img"
+                          aria-label={`Аватар ${r.nm}`}
+                          style={{
+                            backgroundImage: `url(${r.av})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className={`av ${r.av.startsWith('#') ? '' : r.av}`}
+                          role="img"
+                          aria-label={`Аватар ${r.nm}`}
+                          style={r.av.startsWith('#') ? { background: r.av } : undefined}
+                        />
+                      )}
                       <div>
                         <div className="nm">{r.nm}</div>
                         <div className="when">{r.when}</div>
