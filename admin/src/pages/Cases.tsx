@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useToast } from '../lib/toast';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { IcPlus, IcTrash, IcEdit } from '../components/icons';
+import { IcPlus, IcTrash, IcEdit, IcGrip, IcSave } from '../components/icons';
 
 type CaseItem = {
   slug: string;
@@ -36,17 +36,24 @@ export default function CasesPage() {
   const t = useToast();
   const [list, setList] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [originalSlugs, setOriginalSlugs] = useState<string[]>([]);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
   const [delSlug, setDelSlug] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [newSlug, setNewSlug] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [busy, setBusy] = useState(false);
 
+  const orderDirty = list.map((c) => c.slug).join('|') !== originalSlugs.join('|');
+
   async function reload() {
     setLoading(true);
     try {
       const r = await api.get('cases');
-      setList((r.data || []) as CaseItem[]);
+      const data = (r.data || []) as CaseItem[];
+      setList(data);
+      setOriginalSlugs(data.map((c) => c.slug));
     } catch (e: any) {
       t.err(e?.message || 'Помилка');
     } finally {
@@ -84,6 +91,33 @@ export default function CasesPage() {
     }
   }
 
+  function move(from: number, to: number) {
+    if (from === to) return;
+    const arr = [...list];
+    const [it] = arr.splice(from, 1);
+    arr.splice(to, 0, it);
+    setList(arr);
+  }
+
+  async function saveOrder() {
+    if (savingOrder || !orderDirty) return;
+    setSavingOrder(true);
+    try {
+      await api.save('cases', list);
+      setOriginalSlugs(list.map((c) => c.slug));
+      t.ok('Порядок збережено');
+    } catch (e: any) {
+      t.err(e?.message || 'Не вдалося зберегти порядок');
+    } finally {
+      setSavingOrder(false);
+    }
+  }
+
+  function resetOrder() {
+    const map = new Map(list.map((c) => [c.slug, c]));
+    setList(originalSlugs.map((s) => map.get(s)!).filter(Boolean));
+  }
+
   async function removeCase(slug: string) {
     setDelSlug(null);
     try {
@@ -92,6 +126,7 @@ export default function CasesPage() {
       const next = list.filter((c) => c.slug !== slug);
       await api.save('cases', next);
       setList(next);
+      setOriginalSlugs(next.map((c) => c.slug));
       t.ok('Кейс видалено');
     } catch (e: any) {
       t.err(e?.message || 'Помилка');
@@ -105,7 +140,7 @@ export default function CasesPage() {
       <div className="page-head">
         <div>
           <h1>Кейси</h1>
-          <p>Реалізовані обʼєкти зі сторінки. Натисни на кейс щоб редагувати назву, метадані та галерею.</p>
+          <p>Реалізовані обʼєкти зі сторінки. Натисни на кейс щоб редагувати, або перетягни рядок щоб змінити порядок на головній.</p>
         </div>
         <div className="page-actions">
           <button className="btn btn-primary" onClick={() => setCreateOpen(true)}>
@@ -115,14 +150,33 @@ export default function CasesPage() {
       </div>
 
       <div className="list-table">
-        <div className="list-row head">
+        <div className="list-row head" style={{ gridTemplateColumns: '32px 1.4fr 1fr 1fr auto' }}>
+          <div></div>
           <div>Назва</div>
           <div>Локація</div>
           <div>Медіа</div>
           <div style={{ textAlign: 'right' }}>Дії</div>
         </div>
-        {list.map((c) => (
-          <div className="list-row" key={c.slug} onClick={() => nav(`/cases/${encodeURIComponent(c.slug)}`)}>
+        {list.map((c, i) => (
+          <div
+            className="list-row"
+            key={c.slug}
+            draggable
+            onDragStart={(e) => { setDragIdx(i); e.dataTransfer.effectAllowed = 'move'; }}
+            onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }}
+            onDrop={(e) => { e.preventDefault(); if (dragIdx !== null) move(dragIdx, i); setDragIdx(null); }}
+            onDragEnd={() => setDragIdx(null)}
+            onClick={() => nav(`/cases/${encodeURIComponent(c.slug)}`)}
+            style={{ gridTemplateColumns: '32px 1.4fr 1fr 1fr auto', opacity: dragIdx === i ? 0.4 : 1 }}
+          >
+            <div
+              className="drag-handle"
+              title="Перетягни щоб змінити порядок"
+              onClick={(e) => e.stopPropagation()}
+              style={{ display: 'grid', placeItems: 'center', cursor: 'grab', color: 'var(--c-muted)' }}
+            >
+              <IcGrip size={14} />
+            </div>
             <div>
               <div className="nm">{c.title || c.slug}</div>
               <div className="meta">/{c.slug}</div>
@@ -145,6 +199,20 @@ export default function CasesPage() {
           </div>
         )}
       </div>
+
+      {orderDirty && (
+        <div className="save-bar">
+          <span className="status dirty">Порядок змінено — не забудьте зберегти</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-ghost" type="button" disabled={savingOrder} onClick={resetOrder}>
+              Відкотити
+            </button>
+            <button className="btn btn-primary" type="button" disabled={savingOrder} onClick={saveOrder}>
+              <IcSave size={14} /> {savingOrder ? 'Зберігаємо…' : 'Зберегти порядок'}
+            </button>
+          </div>
+        </div>
+      )}
 
       <ConfirmDialog
         open={delSlug !== null}

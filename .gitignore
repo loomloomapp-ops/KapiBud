@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Backups
+primebud-backup-*/
+primebud-backup-*.zip
+primebud-build-*.zip
+primebud-source-*.zip
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

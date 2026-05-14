@@ -1,0 +1,29 @@
+{
+  "managerName": "Артем",
+  "managerPhoto": "/assets/avatar-1.png",
+  "intro": "Привіт! Залиште контакти — підкажемо вартість ремонту та допоможемо обрати оптимальне рішення.",
+  "triggerText": "Потрібна допомога?",
+  "messengers": [
+    {
+      "id": "wa",
+      "type": "whatsapp",
+      "label": "WhatsApp",
+      "url": "https://wa.me/380630282440",
+      "enabled": true
+    },
+    {
+      "id": "vb",
+      "type": "viber",
+      "label": "Viber",
+      "url": "viber://chat?number=%2B380630282440",
+      "enabled": true
+    },
+    {
+      "id": "tel",
+      "type": "phone",
+      "label": "Подзвонити",
+      "url": "tel:+380630282440",
+      "enabled": true
+    }
+  ]
+}

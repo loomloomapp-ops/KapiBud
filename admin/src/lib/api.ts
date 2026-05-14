@@ -39,6 +39,17 @@ export const api = {
   },
   deleteMedia: (path: string) => send('delete-media.php', { method: 'POST', body: JSON.stringify({ path }) }),
 
+  uploadPdf: (file: File): Promise<{ url: string; size: number }> => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return send('upload-pdf.php', { method: 'POST', body: fd });
+  },
+
+  // Object-типи (widget): GET повертає {data: {...}}, save шле {data: {...}}.
+  getObject: (type: string)                          => send(`content.php?type=${type}`),
+  saveObject: (type: string, data: Record<string, unknown>) =>
+    send(`content.php?type=${type}`, { method: 'PUT', body: JSON.stringify({ data }) }),
+
   // Кейси — окремий FS-API
   caseListMedia: (slug: string) =>
     send(`cases-fs.php?action=list-media&slug=${encodeURIComponent(slug)}`),

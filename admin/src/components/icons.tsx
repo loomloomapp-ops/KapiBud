@@ -19,3 +19,4 @@ export const IcUpload = ({ size = 18 }: { size?: number }) => <C size={size}><pa
 export const IcImage = ({ size = 18 }: { size?: number }) => <C size={size}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></C>;
 export const IcArrowLeft = ({ size = 18 }: { size?: number }) => <C size={size}><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></C>;
 export const IcCheck = ({ size = 18 }: { size?: number }) => <C size={size}><polyline points="20 6 9 17 4 12"/></C>;
+export const IcMessageCircle = ({ size = 18 }: { size?: number }) => <C size={size}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></C>;

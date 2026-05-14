@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import {
-  IcLayers, IcFolderOpen, IcMessageSquare, IcTag, IcHelp, IcUsers, IcLogout,
+  IcLayers, IcFolderOpen, IcMessageSquare, IcTag, IcHelp, IcUsers, IcLogout, IcMessageCircle,
 } from './icons';
 
 const NAV = [
@@ -11,6 +11,7 @@ const NAV = [
   { to: '/reviews',  label: 'Відгуки', Ico: IcMessageSquare },
   { to: '/faq',      label: 'FAQ',     Ico: IcHelp },
   { to: '/partners', label: 'Партнери',Ico: IcUsers },
+  { to: '/widget',   label: 'Віджет/PDF', Ico: IcMessageCircle },
 ];
 
 export default function Layout() {

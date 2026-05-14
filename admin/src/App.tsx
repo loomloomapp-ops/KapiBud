@@ -10,6 +10,7 @@ import PlansPage from './pages/Plans';
 import ReviewsPage from './pages/Reviews';
 import CasesPage from './pages/Cases';
 import CaseEdit from './pages/CaseEdit';
+import WidgetPage from './pages/Widget';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { ready, user } = useAuth();
@@ -40,6 +41,7 @@ export default function App() {
             <Route path="/reviews"  element={<ReviewsPage />} />
             <Route path="/faq"      element={<FAQPage />} />
             <Route path="/partners" element={<PartnersPage />} />
+            <Route path="/widget"   element={<WidgetPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/services" replace />} />
         </Routes>
