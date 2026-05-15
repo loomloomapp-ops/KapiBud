@@ -144,6 +144,7 @@ header.site.is-hidden { transform: translateY(-110%); }
   flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   padding: 8px 9px;
 }
+.header-cta-m { display: none; }
 .menu-btn span { display: block; width: 17px; height: 1px; background: #fff; transition: transform .3s, opacity .2s; }
 .menu-btn.is-open span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
 .menu-btn.is-open span:nth-child(2) { opacity: 0; }
@@ -402,6 +403,30 @@ section.services { padding: 100px var(--pad-x) 0; }
   outline: none; transition: border-color .2s;
 }
 .lead-popup textarea:focus { border-color: var(--c-beige-300); }
+.lp-msg-label { font-size: 14px; line-height: 18px; opacity: .8; margin-bottom: 10px; }
+.lp-msg-row { display: flex; flex-wrap: wrap; gap: 16px 22px; }
+.lp-check {
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer; font-size: 14px; color: var(--c-ink);
+  user-select: none;
+}
+.lp-check input { position: absolute; opacity: 0; pointer-events: none; }
+.lp-check .bx {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1.5px solid var(--c-stroke-soft, #cbb89a);
+  background: #fff;
+  display: inline-grid; place-items: center;
+  transition: background .15s, border-color .15s;
+}
+.lp-check .bx::after {
+  content: ''; width: 10px; height: 10px;
+  background: var(--c-beige-300, #c9a567);
+  border-radius: 2px;
+  transform: scale(0);
+  transition: transform .15s;
+}
+.lp-check.on .bx { border-color: var(--c-beige-300, #c9a567); }
+.lp-check.on .bx::after { transform: scale(1); }
 
 
 /* ── Cases ─────────────────────────────────────────────────────── */
@@ -1059,6 +1084,23 @@ footer.site {
   .nav, .phone-tag, .header-r .btn { display: none; }
   .header-l { gap: 0; }
   .menu-btn { display: flex; }
+  .header-cta-m {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 36px; padding: 0 14px;
+    border: 1px solid rgba(255,255,255,.35);
+    border-radius: 999px;
+    background: rgba(255,255,255,.12);
+    backdrop-filter: blur(6px);
+    color: var(--c-ink-on-dark);
+    font-size: 12px; font-weight: 500;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    transition: background .2s, border-color .2s;
+  }
+  .header-cta-m:hover, .header-cta-m:active {
+    background: rgba(255,255,255,.22);
+    border-color: rgba(255,255,255,.55);
+  }
 
   .hero { border-radius: 0 0 20px 20px; min-height: auto; padding-bottom: 30px; }
   .hero .bg {

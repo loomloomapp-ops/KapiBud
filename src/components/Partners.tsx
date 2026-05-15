@@ -35,7 +35,6 @@ export default function Partners() {
               ) : (
                 <div className={`lg ${p.cls}`}>{p.label}</div>
               )}
-              <div className="cap">{p.cap}</div>
             </div>
           ))}
         </div>

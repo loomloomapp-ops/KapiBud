@@ -1,5 +1,13 @@
+import { useEffect, useState } from 'react';
 import { useScrollReveal } from '../anim/useScrollReveal';
 import { useContent } from '../lib/content';
+import { sendLead } from '../lib/lead';
+import { formatPhone } from '../lib/phoneMask';
+import { IconClose } from './Icons';
+import { pauseSmoothScroll, resumeSmoothScroll } from '../anim/smoothScroll';
+
+const MESSENGERS = ['Telegram', 'Viber', 'WhatsApp'] as const;
+type Messenger = (typeof MESSENGERS)[number];
 
 type Plan = {
   name: string;
@@ -83,6 +91,55 @@ const PLANS_FALLBACK: Plan[] = [
 export default function Plans() {
   const PLANS = useContent<Plan[]>('plans', PLANS_FALLBACK).slice(0, 3);
   useScrollReveal('.plan', { stagger: 0.1 });
+
+  const [openFor, setOpenFor] = useState<string | null>(null);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [channels, setChannels] = useState<Set<Messenger>>(new Set());
+  const [status, setStatus] = useState<'idle' | 'sending' | 'ok' | 'err'>('idle');
+
+  useEffect(() => {
+    if (!openFor) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    pauseSmoothScroll();
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      resumeSmoothScroll();
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [openFor]);
+
+  function close() {
+    setOpenFor(null);
+    setStatus('idle');
+    setName(''); setPhone(''); setChannels(new Set());
+  }
+
+  function toggleCh(c: Messenger) {
+    setChannels((s) => {
+      const next = new Set(s);
+      if (next.has(c)) next.delete(c); else next.add(c);
+      return next;
+    });
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (status === 'sending') return;
+    if (!name.trim() || !phone.trim()) return;
+    setStatus('sending');
+    const r = await sendLead({
+      source: 'plan-popup',
+      name, phone,
+      service: openFor || undefined,
+      contactChannel: [...channels].join(', '),
+    });
+    setStatus(r.ok ? 'ok' : 'err');
+  }
+
   return (
     <section className="plans">
       <div className="plan-grid">
@@ -111,11 +168,48 @@ export default function Plans() {
                 <span className="t-value">{p.term}</span>
               </div>
               {p.termSub && <div className="term-sub">{p.termSub}</div>}
-              <a href="#estimate" className="btn btn-dark plan-cta">Замовити</a>
+              <button type="button" className="btn btn-dark plan-cta" onClick={() => setOpenFor(p.name)}>Замовити</button>
             </div>
           </div>
         ))}
       </div>
+
+      {openFor && (
+        <div className="modal-overlay" onClick={close} data-lenis-prevent>
+          <div className="lead-popup" onClick={(e) => e.stopPropagation()} data-lenis-prevent>
+            <button className="x" type="button" onClick={close} aria-label="Закрити"><IconClose /></button>
+            <h3>Замовити дизайн-проєкт</h3>
+            <p className="sub">Пакет: <b>{openFor}</b>. Залиште контакти — ми зателефонуємо й уточнимо деталі.</p>
+            <form onSubmit={submit} className="lead-form">
+              <div className="hf-field">
+                <label>Ім'я*</label>
+                <div className="ctl"><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ваше ім'я" required /></div>
+              </div>
+              <div className="hf-field">
+                <label>Номер телефону*</label>
+                <div className="ctl"><input value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} onFocus={() => { if (!phone) setPhone('+38 (0'); }} placeholder="+38 (0__) ___ __ __" type="tel" inputMode="tel" required /></div>
+              </div>
+              <div className="lp-msg">
+                <div className="lp-msg-label">Зручний месенджер для звʼязку</div>
+                <div className="lp-msg-row">
+                  {MESSENGERS.map((c) => (
+                    <label key={c} className={`lp-check ${channels.has(c) ? 'on' : ''}`}>
+                      <input type="checkbox" checked={channels.has(c)} onChange={() => toggleCh(c)} />
+                      <span className="bx" />
+                      {c}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {status === 'ok' && <div className="hf-success">Дякуємо! Менеджер передзвонить найближчим часом.</div>}
+              {status === 'err' && <div className="hf-error">Помилка відправки. Спробуйте ще раз.</div>}
+              <button className="hf-submit" type="submit" disabled={status === 'sending'}>
+                {status === 'sending' ? 'Відправляємо…' : 'Замовити'} <span className="arr" />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

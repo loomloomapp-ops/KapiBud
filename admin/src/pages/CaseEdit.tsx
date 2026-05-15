@@ -4,7 +4,7 @@ import { api } from '../lib/api';
 import { useToast, useTry, useUnsavedGuard } from '../lib/toast';
 import SaveBar from '../components/SaveBar';
 import ConfirmDialog from '../components/ConfirmDialog';
-import { IcArrowLeft, IcUpload, IcTrash } from '../components/icons';
+import { IcArrowLeft, IcUpload, IcTrash, IcCheck } from '../components/icons';
 
 type CaseItem = {
   slug: string;
@@ -38,29 +38,47 @@ export default function CaseEdit() {
   const [bust, setBust] = useState(0);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const dirty = JSON.stringify(draft) !== JSON.stringify(original);
+  const mediaDirty = !!original && (
+    JSON.stringify(media.photos) !== JSON.stringify(original.photos || []) ||
+    JSON.stringify(media.videos) !== JSON.stringify(original.videos || [])
+  );
+  const dirty = JSON.stringify(draft) !== JSON.stringify(original) || mediaDirty;
   useUnsavedGuard(dirty);
 
+  // Зливаємо: спочатку файли в порядку JSON (які ще існують на диску),
+  // потім нові з FS, яких немає в JSON — у хвіст. Так збережений порядок
+  // редактора не губиться після reload.
+  function mergeOrder(jsonList: string[] | undefined, fsList: string[]): string[] {
+    const fsSet = new Set(fsList);
+    const ordered = (jsonList || []).filter((n) => fsSet.has(n));
+    const orderedSet = new Set(ordered);
+    const extras = fsList.filter((n) => !orderedSet.has(n));
+    return [...ordered, ...extras];
+  }
+
   const reloadMedia = useCallback(async () => {
-    // Тягнемо і список файлів (FS), і оновлений cases.json — щоб
-    // photos/videos у draft/original збігались (інакше dirty-стан зʼявиться).
     const [m, cRes] = await Promise.all([
       tryDo(() => api.caseListMedia(slug)),
       tryDo(() => api.get('cases')),
     ]);
-    if (m) {
-      setMedia({ photos: m.photos || [], videos: m.videos || [] });
-      setBust(Date.now());
-    }
     if (cRes) {
       const cases = (cRes.data || []) as CaseItem[];
       const c = cases.find((x) => x.slug === slug);
       setAllCases(cases);
-      if (c) {
-        // Зберігаємо локальні зміни metadata у draft, а photos/videos — як на сервері
-        setOrig((prev) => prev ? { ...prev, photos: c.photos, videos: c.videos } : c);
-        setDraft((prev) => prev ? { ...prev, photos: c.photos, videos: c.videos } : c);
+      if (c && m) {
+        const photos = mergeOrder(c.photos, m.photos || []);
+        const videos = mergeOrder(c.videos, m.videos || []);
+        setMedia({ photos, videos });
+        setBust(Date.now());
+        setOrig((prev) => prev ? { ...prev, photos, videos } : { ...c, photos, videos });
+        setDraft((prev) => prev ? { ...prev, photos, videos } : { ...c, photos, videos });
+      } else if (m) {
+        setMedia({ photos: m.photos || [], videos: m.videos || [] });
+        setBust(Date.now());
       }
+    } else if (m) {
+      setMedia({ photos: m.photos || [], videos: m.videos || [] });
+      setBust(Date.now());
     }
   }, [slug, tryDo]);
 
@@ -76,17 +94,15 @@ export default function CaseEdit() {
         const fsVideos: string[] = mRes.videos || [];
         let c = cases.find((x) => x.slug === slug) || null;
 
-        // Авто-синк: якщо на диску є файли, яких немає у JSON — тихо додаємо.
+        // Авто-синк: тримаємо порядок із JSON, з FS додаємо лиш ті, яких бракує.
         if (c) {
-          const jsonPhotos = new Set(c.photos || []);
-          const jsonVideos = new Set(c.videos || []);
-          const missing =
-            fsPhotos.some((n) => !jsonPhotos.has(n)) ||
-            fsVideos.some((n) => !jsonVideos.has(n)) ||
-            (c.photos || []).some((n) => !fsPhotos.includes(n)) ||
-            (c.videos || []).some((n) => !fsVideos.includes(n));
-          if (missing) {
-            const updated = { ...c, photos: fsPhotos, videos: fsVideos };
+          const mergedPhotos = mergeOrder(c.photos, fsPhotos);
+          const mergedVideos = mergeOrder(c.videos, fsVideos);
+          const changed =
+            JSON.stringify(mergedPhotos) !== JSON.stringify(c.photos || []) ||
+            JSON.stringify(mergedVideos) !== JSON.stringify(c.videos || []);
+          if (changed) {
+            const updated = { ...c, photos: mergedPhotos, videos: mergedVideos };
             cases = cases.map((x) => x.slug === slug ? updated : x);
             await api.save('cases', cases).catch(() => {});
             c = updated;
@@ -96,7 +112,7 @@ export default function CaseEdit() {
         setAllCases(cases);
         setOrig(c);
         setDraft(c ? structuredClone(c) : null);
-        setMedia({ photos: fsPhotos, videos: fsVideos });
+        setMedia({ photos: c?.photos || fsPhotos, videos: c?.videos || fsVideos });
       } catch (e: any) {
         t.err(e?.message || 'Помилка завантаження');
       } finally {
@@ -159,6 +175,26 @@ export default function CaseEdit() {
       t.ok(`Завантажено: ${okCnt}`);
       await reloadMedia();
     }
+  }
+
+  function movePhoto(idx: number, dir: -1 | 1) {
+    setMedia((m) => {
+      const arr = [...m.photos];
+      const j = idx + dir;
+      if (j < 0 || j >= arr.length) return m;
+      [arr[idx], arr[j]] = [arr[j], arr[idx]];
+      return { ...m, photos: arr };
+    });
+  }
+
+  function setCover(idx: number) {
+    setMedia((m) => {
+      if (idx <= 0 || idx >= m.photos.length) return m;
+      const arr = [...m.photos];
+      const [picked] = arr.splice(idx, 1);
+      arr.unshift(picked);
+      return { ...m, photos: arr };
+    });
   }
 
   async function removeMediaFile() {
@@ -259,15 +295,24 @@ export default function CaseEdit() {
 
         {(media.photos.length > 0 || media.videos.length > 0) ? (
           <div className="media-grid">
-            {media.photos.map((n) => (
-              <div className="media-tile" key={`p:${n}`}>
+            {media.photos.map((n, i) => (
+              <div className={`media-tile ${i === 0 ? 'is-cover' : ''}`} key={`p:${n}`}>
                 <img
                   key={`p:${n}:${bust}`}
                   src={`${baseUrl}/${n}${bust ? `?v=${bust}` : ''}`}
                   alt={n}
                   loading="lazy"
                 />
-                <span className="badge">фото</span>
+                <span className="badge">{i === 0 ? 'обкладинка' : `фото · ${i + 1}`}</span>
+                <div className="media-ord">
+                  <button type="button" title="Вліво" disabled={i === 0} onClick={() => movePhoto(i, -1)}>‹</button>
+                  <button type="button" title="Вправо" disabled={i === media.photos.length - 1} onClick={() => movePhoto(i, 1)}>›</button>
+                  {i !== 0 && (
+                    <button type="button" className="cover-btn" title="Зробити обкладинкою" onClick={() => setCover(i)}>
+                      <IcCheck size={12} />
+                    </button>
+                  )}
+                </div>
                 <button className="del" title="Видалити" onClick={() => setDelMedia({ kind: 'photo', name: n })}>
                   <IcTrash size={12} />
                 </button>

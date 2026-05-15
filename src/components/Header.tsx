@@ -72,6 +72,9 @@ export default function Header({ onCtaClick }: Props) {
               <a href="#faq">FaQ</a>
             </nav>
           </div>
+          <button className="header-cta-m" onClick={onCtaClick}>
+            Отримати прорахунок
+          </button>
           <div className="header-r">
             <a className="phone-tag" href="tel:+380630282440">
               <IconPhone />
