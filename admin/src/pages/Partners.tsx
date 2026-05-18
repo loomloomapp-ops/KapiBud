@@ -6,7 +6,7 @@ import SaveBar from '../components/SaveBar';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { IcPlus, IcTrash, IcGrip, IcUpload, IcImage } from '../components/icons';
 
-type Partner = { cls: string; label: string; cap: string; logo?: string };
+type Partner = { cls: string; label: string; logo?: string };
 
 export default function PartnersPage() {
   const { draft, setDraft, dirty, loading, saving, save, reset } =
@@ -24,7 +24,7 @@ export default function PartnersPage() {
   function update(i: number, patch: Partial<Partner>) {
     setDraft(list.map((it, k) => (k === i ? { ...it, ...patch } : it)));
   }
-  function add() { setDraft([...list, { cls: '', label: '', cap: '' }]); }
+  function add() { setDraft([...list, { cls: '', label: '' }]); }
   function remove(i: number) { setDraft(list.filter((_, k) => k !== i)); setDelIdx(null); }
   function move(from: number, to: number) {
     if (from === to) return;
@@ -135,10 +135,6 @@ export default function PartnersPage() {
             <input className="input" value={it.cls} onChange={(e) => update(i, { cls: e.target.value })} placeholder="AGROMAT" />
           </div>
 
-          <div className="field-row">
-            <div className="field-label">Підпис</div>
-            <textarea className="textarea" value={it.cap} onChange={(e) => update(i, { cap: e.target.value })} rows={2} />
-          </div>
         </div>
       ))}
 

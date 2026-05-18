@@ -1,10 +1,10 @@
 [
-  { "cls": "AGROMAT",   "label": "АГРОМАТ",     "cap": "доступ до надійних постачальників і виробників" },
-  { "cls": "REHAU",     "label": "REHAU",        "cap": "вигідніші ціни та спеціальні умови" },
-  { "cls": "TECE",      "label": "TECE",         "cap": "гарантована якість матеріалів і рішень" },
-  { "cls": "KNAUF",     "label": "Knauf",        "cap": "стабільні терміни виконання робіт" },
-  { "cls": "SONCE",     "label": "SONCE",        "cap": "широкий вибір рішень під будь-які потреби" },
-  { "cls": "CERSANIT",  "label": "CERSANIT",     "cap": "оптимальне поєднання ціни та якості" },
-  { "cls": "LEROY",     "label": "leroy merlin", "cap": "мінімізацію ризиків та непередбачених ситуацій" },
-  { "cls": "EPICENTRE", "label": "Епіцентр",     "cap": "економію вашого часу та ресурсів" }
+  { "cls": "AGROMAT",   "label": "АГРОМАТ" },
+  { "cls": "REHAU",     "label": "REHAU" },
+  { "cls": "TECE",      "label": "TECE" },
+  { "cls": "KNAUF",     "label": "Knauf" },
+  { "cls": "SONCE",     "label": "SONCE" },
+  { "cls": "CERSANIT",  "label": "CERSANIT" },
+  { "cls": "LEROY",     "label": "leroy merlin" },
+  { "cls": "EPICENTRE", "label": "Епіцентр" }
 ]
